@@ -137,46 +137,48 @@ def _(monaco, mu, n_samples, norm, sigma):
         """
         return x1**2 + 2*x1*x2 + x2**2
 
+    # Define simulation functions
+    def preprocess(case):
+        return (case.invals['x1'].val, case.invals['x2'].val)
+
+    def run(x1, x2):
+        return example_model(x1, x2)
+
+    def postprocess(case, simulation_output):
+        case.addOutVal(name='Flip Result', val=simulation_output)
+        case.addOutVal(name='Flip Number', val=case.ncase)
+
     # Create monaco simulation
     sim = monaco.Sim(
-        nCases=n_samples,
-        fcnName='example_model'
+        name='normal_distribution_example',
+        ndraws=n_samples,
+        fcns={
+            'preprocess': preprocess,
+            'run': run,
+            'postprocess': postprocess
+        },
+        debug=True,
+        verbose=True
     )
 
     # Add input variables with normal distributions
     sim.addInVar(name='x1', 
-                 dist=lambda: norm.rvs(loc=mu, scale=sigma),
-                 correlatesTo=[])
+                 dist=norm,
+                 distkwargs={'loc': mu, 'scale': sigma})
 
     sim.addInVar(name='x2', 
-                 dist=lambda: norm.rvs(loc=mu, scale=sigma),
-                 correlatesTo=[])
-
-    # Add the model function
-    sim.fcn = example_model
+                 dist=norm,
+                 distkwargs={'loc': mu, 'scale': sigma})
 
     return (sim,)
 
 
 @app.cell
-def _(mo, sim):
-    # Run the Monte Carlo simulation
-    try:
-        sim.runSim()
-
-        # Get results
-        x1_values = [case.inVars['x1'].val for case in sim.cases]
-        x2_values = [case.inVars['x2'].val for case in sim.cases]
-        output_values = [case.outVal for case in sim.cases]
-
-        simulation_success = True
-
-    except Exception as e:
-        mo.md(f"**Error running simulation:** {str(e)}")
-        simulation_success = False
-        x1_values, x2_values, output_values = [], [], []
-
-    return output_values, simulation_success, x1_values, x2_values
+def _(monaco, sim):
+    sim.runSim()
+    print(f'{sim.name} Runtime: {sim.runtime}')
+    monaco.plot(sim.outvars['Flip Result'])
+    return
 
 
 @app.cell
