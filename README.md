@@ -5,17 +5,13 @@ This project provides a comprehensive Monte Carlo simulation for analyzing the N
 ## Setup Instructions
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.13+
 - [uv](https://docs.astral.sh/uv/) package manager
 
 ### Installation
 
 1. Clone or download this repository
 2. Navigate to the project directory:
-   ```bash
-   cd ai-npv
-   ```
-
 3. Install dependencies using uv:
    ```bash
    uv sync
@@ -33,7 +29,7 @@ This project provides a comprehensive Monte Carlo simulation for analyzing the N
    marimo edit ai_roi_mcm_npv.py
    ```
 
-The interactive analysis will open in your web browser at `http://localhost:2718`.
+The interactive analysis will open in your web browser.
 
 ## Key Features
 
@@ -86,12 +82,6 @@ The simulation incorporates realistic uncertainty modeling through various proba
   - Discount rates (range of acceptable cost of capital)
   - Productivity conversion factors (operational efficiency uncertainty)
 
-## Files
-
-- `ai_roi_mcm_npv.py` - Main interactive Monte Carlo NPV analysis notebook
-- `base_npv.xlsx` - Source Excel model with baseline NPV calculations
-- `monte_carlo_normal.py` - Original Monte Carlo template (reference)
-
 ## Usage
 
 Run the interactive analysis:
@@ -100,12 +90,3 @@ python ai_roi_mcm_npv.py
 ```
 
 Adjust the parameter sliders to see how different assumptions affect the NPV distribution and risk profile in real-time.
-
-## Requirements
-
-- Python 3.8+
-- marimo (interactive notebook environment)
-- monaco (Monte Carlo simulation framework)
-- numpy, scipy (statistical computing)
-- matplotlib (visualization)
-- pandas, openpyxl (Excel file handling)

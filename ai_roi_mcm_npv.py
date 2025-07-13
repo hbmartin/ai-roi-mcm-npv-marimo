@@ -4,8 +4,8 @@ __generated_with = "0.14.10"
 app = marimo.App()
 
 
-@app.cell
-def _():
+@app.cell(hide_code=True)
+def setup_1():
     import marimo as mo
     import numpy as np
     import matplotlib.pyplot as plt
@@ -14,13 +14,13 @@ def _():
     return mo, monaco, norm, np, plt
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md("""# AI ROI Monte Carlo NPV Analysis""")
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         """
@@ -53,13 +53,26 @@ def _(mo):
         start=1000, stop=10000, step=500, value=5000, label="Number of Simulations"
     )
 
-    return (bug_reduction_slider, discount_rate_slider, employees_slider, 
-            hourly_rate_slider, hours_saved_slider, n_samples_slider)
+    return (
+        bug_reduction_slider,
+        discount_rate_slider,
+        employees_slider,
+        hourly_rate_slider,
+        hours_saved_slider,
+        n_samples_slider,
+    )
 
 
 @app.cell
-def _(bug_reduction_slider, discount_rate_slider, employees_slider, 
-      hourly_rate_slider, hours_saved_slider, mo, n_samples_slider):
+def _(
+    bug_reduction_slider,
+    discount_rate_slider,
+    employees_slider,
+    hourly_rate_slider,
+    hours_saved_slider,
+    mo,
+    n_samples_slider,
+):
     mo.hstack([
         mo.vstack([hours_saved_slider, employees_slider, hourly_rate_slider]),
         mo.vstack([bug_reduction_slider, discount_rate_slider, n_samples_slider])
@@ -68,8 +81,15 @@ def _(bug_reduction_slider, discount_rate_slider, employees_slider,
 
 
 @app.cell
-def _(bug_reduction_slider, discount_rate_slider, employees_slider,
-      hourly_rate_slider, hours_saved_slider, mo, n_samples_slider):
+def _(
+    bug_reduction_slider,
+    discount_rate_slider,
+    employees_slider,
+    hourly_rate_slider,
+    hours_saved_slider,
+    mo,
+    n_samples_slider,
+):
     # Get current parameter values
     hours_saved = hours_saved_slider.value
     employees = employees_slider.value
@@ -82,15 +102,22 @@ def _(bug_reduction_slider, discount_rate_slider, employees_slider,
     Hours Saved: {hours_saved}/week, Employees: {employees}, 
     Hourly Rate: ${hourly_rate}, Bug Reduction: {bug_reduction:.0%}, 
     Discount Rate: {discount_rate:.0%}, Simulations: {n_samples}""")
-    return bug_reduction, discount_rate, employees, hourly_rate, hours_saved, n_samples
+    return (
+        bug_reduction,
+        discount_rate,
+        employees,
+        hourly_rate,
+        hours_saved,
+        n_samples,
+    )
 
 
-@app.cell  
+@app.cell
 def _(mo):
     mo.md(
         """
     ## NPV Calculation Function
-    
+
     This function calculates the 3-year NPV for AI implementation based on:
     - Time savings benefits
     - Quality improvement benefits 
@@ -101,58 +128,56 @@ def _(mo):
     )
     return
 
-@app.cell
-def calculate_npv(np):
-    def npv_model(hours_saved, employees, hourly_rate, bug_reduction, discount_rate,
-                  productivity_rate=0.65, weeks_per_year=52, 
-                  current_bug_cost=200000, cost_factor=3.5,
-                  delivery_improvement=0.2, additional_customers=2, customer_value=500000, 
-                  attribution_factor=0.3, retention_improvement=0.2, current_turnover=0.2,
-                  replacement_cost=100000, impl_costs=550000, ongoing_costs=155000):
-        """
-        Calculate 3-year NPV for AI implementation
-        """
-        
-        # Benefits Calculations
-        # 1. Time Savings Benefits
-        annual_time_savings = hours_saved * employees * weeks_per_year * hourly_rate * productivity_rate
-        
-        # 2. Quality Improvement Benefits  
-        annual_quality_savings = bug_reduction * current_bug_cost * cost_factor
-        
-        # 3. Product Delivery Benefits
-        annual_revenue_impact = delivery_improvement * additional_customers * customer_value * attribution_factor
-        
-        # 4. Employee Retention Benefits
-        annual_retention_savings = retention_improvement * current_turnover * employees * replacement_cost
-        
-        # Total Annual Benefits
-        total_annual_benefits = (annual_time_savings + annual_quality_savings + 
-                               annual_revenue_impact + annual_retention_savings)
-        
-        # Cash Flows
-        year_1_net_flow = total_annual_benefits - impl_costs
-        year_2_net_flow = total_annual_benefits - ongoing_costs  
-        year_3_net_flow = total_annual_benefits - ongoing_costs
-        
-        # NPV Calculation
-        npv = (year_1_net_flow / (1 + discount_rate)**1 +
-               year_2_net_flow / (1 + discount_rate)**2 +
-               year_3_net_flow / (1 + discount_rate)**3)
-        
-        return {
-            'npv': npv,
-            'annual_benefits': total_annual_benefits,
-            'time_savings': annual_time_savings,
-            'quality_savings': annual_quality_savings,
-            'revenue_impact': annual_revenue_impact,
-            'retention_savings': annual_retention_savings,
-            'year_1_net': year_1_net_flow,
-            'year_2_net': year_2_net_flow,
-            'year_3_net': year_3_net_flow
-        }
-    
-    return npv_model,
+
+@app.function
+def npv_model(hours_saved, employees, hourly_rate, bug_reduction, discount_rate,
+              productivity_rate=0.65, weeks_per_year=52, 
+              current_bug_cost=200000, cost_factor=3.5,
+              delivery_improvement=0.2, additional_customers=2, customer_value=500000, 
+              attribution_factor=0.3, retention_improvement=0.2, current_turnover=0.2,
+              replacement_cost=100000, impl_costs=550000, ongoing_costs=155000):
+    """
+    Calculate 3-year NPV for AI implementation
+    """
+
+    # Benefits Calculations
+    # 1. Time Savings Benefits
+    annual_time_savings = hours_saved * employees * weeks_per_year * hourly_rate * productivity_rate
+
+    # 2. Quality Improvement Benefits  
+    annual_quality_savings = bug_reduction * current_bug_cost * cost_factor
+
+    # 3. Product Delivery Benefits
+    annual_revenue_impact = delivery_improvement * additional_customers * customer_value * attribution_factor
+
+    # 4. Employee Retention Benefits
+    annual_retention_savings = retention_improvement * current_turnover * employees * replacement_cost
+
+    # Total Annual Benefits
+    total_annual_benefits = (annual_time_savings + annual_quality_savings + 
+                           annual_revenue_impact + annual_retention_savings)
+
+    # Cash Flows
+    year_1_net_flow = total_annual_benefits - impl_costs
+    year_2_net_flow = total_annual_benefits - ongoing_costs  
+    year_3_net_flow = total_annual_benefits - ongoing_costs
+
+    # NPV Calculation
+    npv = (year_1_net_flow / (1 + discount_rate)**1 +
+           year_2_net_flow / (1 + discount_rate)**2 +
+           year_3_net_flow / (1 + discount_rate)**3)
+
+    return {
+        'npv': npv,
+        'annual_benefits': total_annual_benefits,
+        'time_savings': annual_time_savings,
+        'quality_savings': annual_quality_savings,
+        'revenue_impact': annual_revenue_impact,
+        'retention_savings': annual_retention_savings,
+        'year_1_net': year_1_net_flow,
+        'year_2_net': year_2_net_flow,
+        'year_3_net': year_3_net_flow
+    }
 
 
 @app.cell
@@ -169,15 +194,23 @@ def _(mo):
 
 
 @app.cell
-def _(bug_reduction, discount_rate, employees, hourly_rate, hours_saved, 
-      monaco, n_samples, norm, np, npv_model):
-    from scipy.stats import uniform, triangular, beta
-    
+def _(
+    bug_reduction,
+    discount_rate,
+    employees,
+    hourly_rate,
+    hours_saved,
+    monaco,
+    n_samples,
+    norm,
+):
+    from scipy.stats import uniform, triang, beta
+
     # Define simulation functions
     def preprocess(case):
-        return {
+        return ({
             'hours_saved': case.invals['hours_saved'].val,
-            'employees': case.invals['employees'].val, 
+            'employees': case.constvals['employees'], 
             'hourly_rate': case.invals['hourly_rate'].val,
             'bug_reduction': case.invals['bug_reduction'].val,
             'discount_rate': case.invals['discount_rate'].val,
@@ -185,11 +218,11 @@ def _(bug_reduction, discount_rate, employees, hourly_rate, hours_saved,
             'current_bug_cost': case.invals['current_bug_cost'].val,
             'delivery_improvement': case.invals['delivery_improvement'].val,
             'retention_improvement': case.invals['retention_improvement'].val
-        }
+        },)
 
     def run(params):
         result = npv_model(**params)
-        return result
+        return (result,)
 
     def postprocess(case, simulation_output):
         case.addOutVal(name='NPV', val=simulation_output['npv'])
@@ -207,47 +240,45 @@ def _(bug_reduction, discount_rate, employees, hourly_rate, hours_saved,
             'run': run,
             'postprocess': postprocess
         },
-        debug=False,
-        verbose=False
+        debug=True,
+        verbose=True
     )
 
-    # Add input variables with uncertainty distributions
-    # Hours saved per week (triangular distribution)
+    ## Constants
+    sim.addConstVal(name="employees", val=employees)
+
+    ## Time Savings Benefits (Internal)
     sim.addInVar(name='hours_saved', 
-                 dist=triangular,
+                 dist=triang,
                  distkwargs={'c': 0.5, 'loc': hours_saved*0.7, 'scale': hours_saved*0.6})
-    
-    # Hourly rate (normal distribution)
     sim.addInVar(name='hourly_rate',
                  dist=norm,
                  distkwargs={'loc': hourly_rate, 'scale': hourly_rate*0.1})
-    
+    sim.addInVar(name='productivity_rate',
+                 dist=uniform,
+                 distkwargs={'loc': 0.55, 'scale': 0.2})
+
+    ## Quality Improvement Benefits
     # Bug reduction (beta distribution)
     sim.addInVar(name='bug_reduction',
                  dist=beta,
                  distkwargs={'a': 3, 'b': 5, 'loc': bug_reduction*0.7, 'scale': bug_reduction*0.6})
-    
+
     # Discount rate (uniform distribution)
     sim.addInVar(name='discount_rate',
                  dist=uniform,
                  distkwargs={'loc': discount_rate*0.8, 'scale': discount_rate*0.4})
-    
-    # Fixed/deterministic variables
-    sim.addInVar(name='employees',
-                 dist=lambda: employees)
-    
-    sim.addInVar(name='productivity_rate',
-                 dist=uniform,
-                 distkwargs={'loc': 0.55, 'scale': 0.2})
-    
+
     sim.addInVar(name='current_bug_cost',
-                 dist=triangular,
+                 dist=triang,
                  distkwargs={'c': 0.3, 'loc': 150000, 'scale': 100000})
-    
+
+    ## Product Delivery Benefits
     sim.addInVar(name='delivery_improvement',
                  dist=beta,
                  distkwargs={'a': 2, 'b': 3, 'loc': 0.1, 'scale': 0.2})
-    
+
+    ## Employee Retention Benefits
     sim.addInVar(name='retention_improvement',
                  dist=beta,
                  distkwargs={'a': 2, 'b': 4, 'loc': 0.1, 'scale': 0.25})
@@ -256,27 +287,22 @@ def _(bug_reduction, discount_rate, employees, hourly_rate, hours_saved,
 
 
 @app.cell
-def _(mo, sim):
-    # Run the Monte Carlo simulation
-    try:
-        sim.runSim()
-        print(f'{sim.name} Runtime: {sim.runtime}')
-        
-        # Extract results
-        npv_values = [case.outVars['NPV'] for case in sim.cases]
-        benefits_values = [case.outVars['Annual_Benefits'] for case in sim.cases]
-        time_savings_values = [case.outVars['Time_Savings'] for case in sim.cases]
-        quality_savings_values = [case.outVars['Quality_Savings'] for case in sim.cases]
-        
-        simulation_success = True
-        
-    except Exception as e:
-        print(f"Error running simulation: {str(e)}")
-        simulation_success = False
-        npv_values = benefits_values = time_savings_values = quality_savings_values = []
-
-    return (benefits_values, npv_values, quality_savings_values, 
-            simulation_success, time_savings_values)
+def _(sim):
+    sim.runSim()
+    print(f'{sim.name} Runtime: {sim.runtime}')
+    print(sim.outvars.keys())
+    # Extract results
+    npv_values = [case.outvals['NPV'].val for case in sim.cases]
+    benefits_values = [case.outvals['Annual_Benefits'].val for case in sim.cases]
+    time_savings_values = [case.outvals['Time_Savings'].val for case in sim.cases]
+    quality_savings_values = [case.outvals['Quality_Savings'].val for case in sim.cases]
+    print(npv_values)
+    return (
+        benefits_values,
+        npv_values,
+        quality_savings_values,
+        time_savings_values,
+    )
 
 
 @app.cell
@@ -287,97 +313,88 @@ def plot_results(
     npv_values,
     plt,
     quality_savings_values,
-    simulation_success,
     time_savings_values,
 ):
-    if simulation_success:
-        # Create visualization of NPV results
-        fig2, axes = plt.subplots(2, 2, figsize=(15, 12))
+    # Create visualization of NPV results
+    fig2, axes = plt.subplots(2, 2, figsize=(15, 12))
+    # NPV Distribution
+    axes[0,0].hist(npv_values, bins=50, alpha=0.7, color='lightblue', edgecolor='black')
+    axes[0,0].axvline(np.mean(npv_values), color='red', linestyle='--', 
+                     label=f'Mean: ${np.mean(npv_values):,.0f}')
+    axes[0,0].axvline(0, color='black', linestyle='-', alpha=0.5, label='Break-even')
+    axes[0,0].set_title('NPV Distribution')
+    axes[0,0].set_xlabel('NPV ($)')
+    axes[0,0].set_ylabel('Frequency')
+    axes[0,0].legend()
+    axes[0,0].grid(True, alpha=0.3)
 
-        # NPV Distribution
-        axes[0,0].hist(npv_values, bins=50, alpha=0.7, color='lightblue', edgecolor='black')
-        axes[0,0].axvline(np.mean(npv_values), color='red', linestyle='--', 
-                         label=f'Mean: ${np.mean(npv_values):,.0f}')
-        axes[0,0].axvline(0, color='black', linestyle='-', alpha=0.5, label='Break-even')
-        axes[0,0].set_title('NPV Distribution')
-        axes[0,0].set_xlabel('NPV ($)')
-        axes[0,0].set_ylabel('Frequency')
-        axes[0,0].legend()
-        axes[0,0].grid(True, alpha=0.3)
+    # Benefits Breakdown
+    axes[0,1].hist(benefits_values, bins=30, alpha=0.7, color='lightgreen', edgecolor='black')
+    axes[0,1].set_title('Annual Benefits Distribution')
+    axes[0,1].set_xlabel('Annual Benefits ($)')
+    axes[0,1].set_ylabel('Frequency')
+    axes[0,1].grid(True, alpha=0.3)
 
-        # Benefits Breakdown
-        axes[0,1].hist(benefits_values, bins=30, alpha=0.7, color='lightgreen', edgecolor='black')
-        axes[0,1].set_title('Annual Benefits Distribution')
-        axes[0,1].set_xlabel('Annual Benefits ($)')
-        axes[0,1].set_ylabel('Frequency')
-        axes[0,1].grid(True, alpha=0.3)
+    # Time Savings vs Quality Savings
+    scatter = axes[1,0].scatter(time_savings_values, quality_savings_values, 
+                               c=npv_values, cmap='RdYlGn', alpha=0.6)
+    axes[1,0].set_xlabel('Time Savings ($)')
+    axes[1,0].set_ylabel('Quality Savings ($)')
+    axes[1,0].set_title('Time vs Quality Savings (colored by NPV)')
+    plt.colorbar(scatter, ax=axes[1,0])
+    axes[1,0].grid(True, alpha=0.3)
 
-        # Time Savings vs Quality Savings
-        scatter = axes[1,0].scatter(time_savings_values, quality_savings_values, 
-                                   c=npv_values, cmap='RdYlGn', alpha=0.6)
-        axes[1,0].set_xlabel('Time Savings ($)')
-        axes[1,0].set_ylabel('Quality Savings ($)')
-        axes[1,0].set_title('Time vs Quality Savings (colored by NPV)')
-        plt.colorbar(scatter, ax=axes[1,0])
-        axes[1,0].grid(True, alpha=0.3)
+    # Risk Analysis
+    positive_npv_pct = (np.array(npv_values) > 0).mean() * 100
+    axes[1,1].pie([positive_npv_pct, 100-positive_npv_pct], 
+                 labels=[f'Positive NPV\n({positive_npv_pct:.1f}%)', 
+                        f'Negative NPV\n({100-positive_npv_pct:.1f}%)'],
+                 colors=['lightgreen', 'lightcoral'], autopct='%1.1f%%')
+    axes[1,1].set_title('NPV Risk Assessment')
 
-        # Risk Analysis
-        positive_npv_pct = (np.array(npv_values) > 0).mean() * 100
-        axes[1,1].pie([positive_npv_pct, 100-positive_npv_pct], 
-                     labels=[f'Positive NPV\n({positive_npv_pct:.1f}%)', 
-                            f'Negative NPV\n({100-positive_npv_pct:.1f}%)'],
-                     colors=['lightgreen', 'lightcoral'], autopct='%1.1f%%')
-        axes[1,1].set_title('NPV Risk Assessment')
+    plt.tight_layout()
 
-        plt.tight_layout()
+    # Calculate comprehensive statistics
+    npv_mean = np.mean(npv_values)
+    npv_std = np.std(npv_values)
+    npv_p5 = np.percentile(npv_values, 5)
+    npv_p95 = np.percentile(npv_values, 95)
+    benefits_mean = np.mean(benefits_values)
 
-        # Calculate comprehensive statistics
-        npv_mean = np.mean(npv_values)
-        npv_std = np.std(npv_values)
-        npv_p5 = np.percentile(npv_values, 5)
-        npv_p95 = np.percentile(npv_values, 95)
-        benefits_mean = np.mean(benefits_values)
+    results_text = f"""
+    **NPV Monte Carlo Results:**
+    - Mean NPV: ${npv_mean:,.0f}
+    - NPV Std Dev: ${npv_std:,.0f}
+    - 90% Confidence Interval: [${npv_p5:,.0f}, ${npv_p95:,.0f}]
+    - Probability of Positive NPV: {positive_npv_pct:.1f}%
+    - Mean Annual Benefits: ${benefits_mean:,.0f}
+    - Number of Simulations: {len(npv_values):,}
+    """
 
-        results_text = f"""
-        **NPV Monte Carlo Results:**
-        - Mean NPV: ${npv_mean:,.0f}
-        - NPV Std Dev: ${npv_std:,.0f}
-        - 90% Confidence Interval: [${npv_p5:,.0f}, ${npv_p95:,.0f}]
-        - Probability of Positive NPV: {positive_npv_pct:.1f}%
-        - Mean Annual Benefits: ${benefits_mean:,.0f}
-        - Number of Simulations: {len(npv_values):,}
-        """
-
-        mo.vstack([
-            mo.as_html(fig2),
-            mo.md(results_text)
-        ])
-    else:
-        mo.md("Simulation failed. Please check the parameters and try again.")
+    mo.vstack([
+        mo.as_html(fig2),
+        mo.md(results_text)
+    ])
     return
 
 
 @app.cell
-def _(mo, np, npv_values, simulation_success):
-    if simulation_success:
-        # Additional NPV analysis
-        percentiles = [5, 10, 25, 50, 75, 90, 95]
-        percentile_values = np.percentile(npv_values, percentiles)
+def _(mo, np, npv_values):
+    percentiles = [5, 10, 25, 50, 75, 90, 95]
+    percentile_values = np.percentile(npv_values, percentiles)
 
-        percentile_table = mo.ui.table(
-            data=[
-                {"Percentile": f"{p}%", "NPV": f"${v:,.0f}"} 
-                for p, v in zip(percentiles, percentile_values)
-            ],
-            selection=None
-        )
+    percentile_table = mo.ui.table(
+        data=[
+            {"Percentile": f"{p}%", "NPV": f"${v:,.0f}"} 
+            for p, v in zip(percentiles, percentile_values)
+        ],
+        selection=None
+    )
 
-        mo.vstack([
-            mo.md("**NPV Percentiles:**"),
-            percentile_table
-        ])
-    else:
-        mo.md("")
+    mo.vstack([
+        mo.md("**NPV Percentiles:**"),
+        percentile_table
+    ])
     return
 
 
@@ -400,7 +417,7 @@ def _(mo):
     - Hourly rates and productivity factors (normal/uniform distributions)
     - Bug reduction effectiveness (beta distribution)
     - Business impact factors (various distributions)
-    
+
     Adjust the sliders to see how different assumptions affect the NPV distribution and risk profile.
     """
     )
