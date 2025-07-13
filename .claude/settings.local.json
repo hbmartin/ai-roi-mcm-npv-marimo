@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.scipy.org)",
+      "WebFetch(domain:monaco.readthedocs.io)",
+      "WebFetch(domain:monaco.readthedocs.io)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.marimo.io)"
+    ],
+    "deny": []
+  }
+}
