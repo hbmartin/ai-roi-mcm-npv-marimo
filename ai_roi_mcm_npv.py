@@ -4,27 +4,134 @@ __generated_with = "0.14.10"
 app = marimo.App()
 
 
-@app.cell(hide_code=True)
+@app.cell
 def setup_1():
     import marimo as mo
     import numpy as np
     import matplotlib.pyplot as plt
     from scipy.stats import norm
     import monaco
+    from npv_model import npv_model
+    from npv_sim import npv_sim
+    from marimo_components import (
+        _dist_plot,
+        distribution_params,
+        display_params,
+        generate_ranged_distkwargs,
+    )
 
-    return mo, monaco, norm, np, plt
+    return (
+        display_params,
+        distribution_params,
+        generate_ranged_distkwargs,
+        mo,
+        monaco,
+        norm,
+        np,
+        npv_sim,
+        plt,
+    )
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
-    mo.md("""# AI ROI Monte Carlo NPV Analysis""")
+    mo.md(r"""# AI ROI Monte Carlo NPV Analysis""")
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
+def _(generate_ranged_distkwargs):
+    my_params = generate_ranged_distkwargs(
+        "triang", {"loc": {"lower": 0, "upper": 10}, "scale": {"upper": 5}}
+    )
+    print(my_params)
+    return (my_params,)
+
+
+@app.cell
+def _(distribution_params, my_params):
+    a = distribution_params(my_params)
+
+    return (a,)
+
+
+@app.cell
+def _(a, display_params):
+    display_params("Hours Saved per Employee", a, "triang")
+    return
+
+
+@app.cell
+def _(mo, time_savings):
+    mo.vstack([p["ui"] for p in time_savings])
+    return
+
+
+@app.cell
+def _(time_savings):
+    [v[1].value for v in time_savings[0]["ui"].items()]
+    return
+
+
+@app.cell
+def _(time_savings):
+    {k: v.value for k, v in time_savings[0]["params"].items()}
+    return
+
+
+@app.cell
+def _(time_savings):
+    time_savings[0]
+    return
+
+
+@app.cell
+def _(display_params, time_savings):
+    display_params(time_savings[0])
+    return
+
+
+@app.cell
+def _(time_savings):
+    t0 = time_savings[0]
+
+    return (t0,)
+
+
+@app.cell
+def _(t0):
+    states = t0["states"]
+    return (states,)
+
+
+@app.cell
+def _(states):
+    {k: v[0]() for k, v in states.items()}
+    return
+
+
+@app.cell
+def _(t0):
+    sliders = t0["params"]
+    return (sliders,)
+
+
+@app.cell
+def _(sliders):
+    {k: v.value for k, v in sliders.items()}
+    return
+
+
+@app.cell
+def _(t0):
+    _dist_plot(t0["states"], t0["dist"])
+    return
+
+
+@app.cell
 def _(mo):
     mo.md(
-        """
+        r"""
     ## Interactive Parameters
     Adjust the key parameters for the AI ROI NPV Monte Carlo simulation:
     """
@@ -50,9 +157,6 @@ def _(mo):
     discount_rate_slider = mo.ui.slider(
         start=0.08, stop=0.25, step=0.01, value=0.15, label="Discount Rate"
     )
-    n_samples_slider = mo.ui.slider(
-        start=1000, stop=10000, step=500, value=5000, label="Number of Simulations"
-    )
 
     return (
         bug_reduction_slider,
@@ -60,7 +164,6 @@ def _(mo):
         employees_slider,
         hourly_rate_slider,
         hours_saved_slider,
-        n_samples_slider,
     )
 
 
@@ -72,12 +175,11 @@ def _(
     hourly_rate_slider,
     hours_saved_slider,
     mo,
-    n_samples_slider,
 ):
     mo.hstack(
         [
             mo.vstack([hours_saved_slider, employees_slider, hourly_rate_slider]),
-            mo.vstack([bug_reduction_slider, discount_rate_slider, n_samples_slider]),
+            mo.vstack([bug_reduction_slider, discount_rate_slider]),
         ]
     )
     return
@@ -91,7 +193,6 @@ def _(
     hourly_rate_slider,
     hours_saved_slider,
     mo,
-    n_samples_slider,
 ):
     # Get current parameter values
     hours_saved = hours_saved_slider.value
@@ -99,28 +200,21 @@ def _(
     hourly_rate = hourly_rate_slider.value
     bug_reduction = bug_reduction_slider.value
     discount_rate = discount_rate_slider.value
-    n_samples = int(n_samples_slider.value)
+    # n_samples = int(n_samples_slider.value)
 
     mo.md(
         f"""**Current Parameters:** 
     Hours Saved: {hours_saved}/week, Employees: {employees}, 
     Hourly Rate: ${hourly_rate}, Bug Reduction: {bug_reduction:.0%}, 
-    Discount Rate: {discount_rate:.0%}, Simulations: {n_samples}"""
+    Discount Rate: {discount_rate:.0%}"""
     )
-    return (
-        bug_reduction,
-        discount_rate,
-        employees,
-        hourly_rate,
-        hours_saved,
-        n_samples,
-    )
+    return bug_reduction, discount_rate, employees, hourly_rate, hours_saved
 
 
 @app.cell
 def _(mo):
     mo.md(
-        """
+        r"""
     ## NPV Calculation Function
 
     This function calculates the 3-year NPV for AI implementation based on:
@@ -136,15 +230,17 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    mo.md(
-        """
-    ## Monte Carlo Simulation using Monaco
+    n_samples_slider = mo.ui.slider(
+        start=10000, stop=100000, step=1000, value=50000, label="Number of Simulations"
+    ).form(submit_button_label="Run Simulation")
+    n_samples_slider
+    return (n_samples_slider,)
 
-    Now let's use the monaco package to perform Monte Carlo simulation for NPV analysis.
-    We'll model uncertainty in key parameters using appropriate probability distributions.
-    """
-    )
-    return
+
+@app.cell
+def _(n_samples_slider):
+    n_samples = int(n_samples_slider.value) if n_samples_slider.value else None
+    return (n_samples,)
 
 
 @app.cell
@@ -154,111 +250,23 @@ def _(
     employees,
     hourly_rate,
     hours_saved,
+    mo,
     monaco,
     n_samples,
     norm,
+    npv_sim,
 ):
-    from scipy.stats import uniform, triang, beta
-
-    # Define simulation functions
-    def preprocess(case):
-        return (
-            {
-                "hours_saved": case.invals["hours_saved"].val,
-                "employees": case.constvals["employees"],
-                "hourly_rate": case.invals["hourly_rate"].val,
-                "bug_reduction": case.invals["bug_reduction"].val,
-                "discount_rate": case.invals["discount_rate"].val,
-                "productivity_rate": case.invals["productivity_rate"].val,
-                "current_bug_cost": case.invals["current_bug_cost"].val,
-                "delivery_improvement": case.invals["delivery_improvement"].val,
-                "retention_improvement": case.invals["retention_improvement"].val,
-            },
-        )
-
-    def run(params):
-        result = npv_model(**params)
-        return (result,)
-
-    def postprocess(case, simulation_output):
-        case.addOutVal(name="NPV", val=simulation_output["npv"])
-        case.addOutVal(name="Annual_Benefits", val=simulation_output["annual_benefits"])
-        case.addOutVal(name="Time_Savings", val=simulation_output["time_savings"])
-        case.addOutVal(name="Quality_Savings", val=simulation_output["quality_savings"])
-        case.addOutVal(name="Year_1_Net", val=simulation_output["year_1_net"])
-
-    # Create monaco simulation
-    sim = monaco.Sim(
-        name="ai_roi_npv_analysis",
-        ndraws=n_samples,
-        fcns={"preprocess": preprocess, "run": run, "postprocess": postprocess},
-        debug=True,
-        verbose=True,
+    sim = npv_sim(
+        bug_reduction,
+        discount_rate,
+        employees,
+        hourly_rate,
+        hours_saved,
+        mo,
+        monaco,
+        n_samples,
+        norm,
     )
-
-    ## Constants
-    sim.addConstVal(name="employees", val=employees)
-
-    ## Time Savings Benefits (Internal)
-    sim.addInVar(
-        name="hours_saved",
-        dist=triang,
-        distkwargs={"c": 0.5, "loc": hours_saved * 0.7, "scale": hours_saved * 0.6},
-    )
-    sim.addInVar(
-        name="hourly_rate",
-        dist=norm,
-        distkwargs={"loc": hourly_rate, "scale": hourly_rate * 0.1},
-    )
-    sim.addInVar(
-        name="productivity_rate", dist=uniform, distkwargs={"loc": 0.55, "scale": 0.2}
-    )
-
-    ## Quality Improvement Benefits
-    # Bug reduction (beta distribution)
-    sim.addInVar(
-        name="bug_reduction",
-        dist=beta,
-        distkwargs={
-            "a": 3,
-            "b": 5,
-            "loc": bug_reduction * 0.7,
-            "scale": bug_reduction * 0.6,
-        },
-    )
-
-    # Discount rate (uniform distribution)
-    sim.addInVar(
-        name="discount_rate",
-        dist=uniform,
-        distkwargs={"loc": discount_rate * 0.8, "scale": discount_rate * 0.4},
-    )
-
-    sim.addInVar(
-        name="current_bug_cost",
-        dist=triang,
-        distkwargs={"c": 0.3, "loc": 150000, "scale": 100000},
-    )
-
-    ## Product Delivery Benefits
-    sim.addInVar(
-        name="delivery_improvement",
-        dist=beta,
-        distkwargs={"a": 2, "b": 3, "loc": 0.1, "scale": 0.2},
-    )
-
-    ## Employee Retention Benefits
-    sim.addInVar(
-        name="retention_improvement",
-        dist=beta,
-        distkwargs={"a": 2, "b": 4, "loc": 0.1, "scale": 0.25},
-    )
-
-    return (sim,)
-
-
-@app.cell
-def _(sim):
     sim.runSim()
     print(f"{sim.name} Runtime: {sim.runtime}")
     print(sim.outvars.keys())
@@ -267,7 +275,6 @@ def _(sim):
     benefits_values = [case.outvals["Annual_Benefits"].val for case in sim.cases]
     time_savings_values = [case.outvals["Time_Savings"].val for case in sim.cases]
     quality_savings_values = [case.outvals["Quality_Savings"].val for case in sim.cases]
-    print(npv_values)
     return (
         benefits_values,
         npv_values,
@@ -378,32 +385,6 @@ def _(mo, np, npv_values):
     )
 
     mo.vstack([mo.md("**NPV Percentiles:**"), percentile_table])
-    return
-
-
-@app.cell
-def _(mo):
-    mo.md(
-        """
-    ## Summary
-
-    This AI ROI NPV analysis demonstrates:
-    1. **Interactive parameter control** for key business variables
-    2. **Comprehensive NPV modeling** including time savings, quality improvements, delivery acceleration, and retention benefits
-    3. **Monte Carlo simulation** with realistic probability distributions for uncertainty modeling
-    4. **Risk assessment** showing probability of positive NPV and confidence intervals
-    5. **Visual analysis** of benefit components and their relationships
-    6. **Sensitivity analysis** through parameter variation
-
-    The model incorporates uncertainty in:
-    - Hours saved per employee (triangular distribution)
-    - Hourly rates and productivity factors (normal/uniform distributions)
-    - Bug reduction effectiveness (beta distribution)
-    - Business impact factors (various distributions)
-
-    Adjust the sliders to see how different assumptions affect the NPV distribution and risk profile.
-    """
-    )
     return
 
 

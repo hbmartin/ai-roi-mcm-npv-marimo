@@ -1,3 +1,5 @@
+Before running any python commands be sure to active the VM with `source .venv/bin/activate`
+
 # Project Overview
 
 This is an AI ROI Monte Carlo NPV analysis project built with interactive marimo notebooks. The project provides a comprehensive simulation for analyzing the Net Present Value of AI implementation initiatives using statistical modeling and uncertainty analysis.
