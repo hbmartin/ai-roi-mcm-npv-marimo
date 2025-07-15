@@ -14,21 +14,27 @@ def setup_1():
     from npv_model import npv_model
     from npv_sim import npv_sim
     from marimo_components import (
-        _dist_plot,
         distribution_params,
         display_params,
-        generate_ranged_distkwargs,
+        generate_ranges,
     )
+    from params_pert import pert_metadata, generate_pert_ranges
+    from betapert import pert
+    from params_to_sim import params_to_sim
 
     return (
         display_params,
         distribution_params,
-        generate_ranged_distkwargs,
+        generate_pert_ranges,
+        generate_ranges,
         mo,
         monaco,
         norm,
         np,
         npv_sim,
+        params_to_sim,
+        pert,
+        pert_metadata,
         plt,
     )
 
@@ -40,91 +46,35 @@ def _(mo):
 
 
 @app.cell
-def _(generate_ranged_distkwargs):
-    my_params = generate_ranged_distkwargs(
+def _(generate_ranges):
+    my_params = generate_ranges(
         "triang", {"loc": {"lower": 0, "upper": 10}, "scale": {"upper": 5}}
     )
-    print(my_params)
-    return (my_params,)
-
-
-@app.cell
-def _(distribution_params, my_params):
-    a = distribution_params(my_params)
-
-    return (a,)
-
-
-@app.cell
-def _(a, display_params):
-    display_params("Hours Saved per Employee", a, "triang")
     return
 
 
 @app.cell
-def _(mo, time_savings):
-    mo.vstack([p["ui"] for p in time_savings])
+def _():
+    invars = {}
+    return (invars,)
+
+
+@app.cell
+def _(distribution_params, generate_pert_ranges):
+    _pert_params = generate_pert_ranges(0, 2, 5, 0, 5, 8, 2, 8, 12)
+    hspe = distribution_params(_pert_params)
+    return (hspe,)
+
+
+@app.cell
+def _(display_params, hspe, invars, pert, pert_metadata):
+    display_params("Hours Saved per Employee", hspe, pert, invars, pert_metadata)
     return
 
 
 @app.cell
-def _(time_savings):
-    [v[1].value for v in time_savings[0]["ui"].items()]
-    return
-
-
-@app.cell
-def _(time_savings):
-    {k: v.value for k, v in time_savings[0]["params"].items()}
-    return
-
-
-@app.cell
-def _(time_savings):
-    time_savings[0]
-    return
-
-
-@app.cell
-def _(display_params, time_savings):
-    display_params(time_savings[0])
-    return
-
-
-@app.cell
-def _(time_savings):
-    t0 = time_savings[0]
-
-    return (t0,)
-
-
-@app.cell
-def _(t0):
-    states = t0["states"]
-    return (states,)
-
-
-@app.cell
-def _(states):
-    {k: v[0]() for k, v in states.items()}
-    return
-
-
-@app.cell
-def _(t0):
-    sliders = t0["params"]
-    return (sliders,)
-
-
-@app.cell
-def _(sliders):
-    {k: v.value for k, v in sliders.items()}
-    return
-
-
-@app.cell
-def _(t0):
-    _dist_plot(t0["states"], t0["dist"])
+def _(invars):
+    invars
     return
 
 
@@ -250,12 +200,15 @@ def _(
     employees,
     hourly_rate,
     hours_saved,
+    invars,
     mo,
     monaco,
     n_samples,
     norm,
     npv_sim,
+    params_to_sim,
 ):
+    mo.stop(not n_samples)
     sim = npv_sim(
         bug_reduction,
         discount_rate,
@@ -267,6 +220,7 @@ def _(
         n_samples,
         norm,
     )
+    params_to_sim(sim, invars)
     sim.runSim()
     print(f"{sim.name} Runtime: {sim.runtime}")
     print(sim.outvars.keys())

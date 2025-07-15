@@ -79,7 +79,7 @@ def _deep_merge(result, dict2):
     return result
 
 
-def generate_ranged_distkwargs(distribution: str, ranged_distkwargs: dict) -> dict:
+def generate_ranges(distribution: str, ranged_distkwargs: dict) -> dict:
     ranged_copy = _distributions[distribution].copy()
 
     for p_name, ranges in ranged_copy.items():
@@ -117,50 +117,6 @@ def generate_ranged_distkwargs(distribution: str, ranged_distkwargs: dict) -> di
             raise ValueError(f"{p_name}: upper bound is not provided")
 
     return _deep_merge(ranged_copy, ranged_distkwargs)
-
-
-def _distribution_params(
-    name: str,
-    dist: str | Callable,
-    ranged_distkwargs: dict,
-):
-    _dist = dist if isinstance(dist, Callable) else SCIPY_DISTRIBUTIONS[dist]
-
-    params = mo.ui.dictionary(
-        {
-            p_name: mo.ui.slider(
-                start=ranges["lower"],
-                stop=ranges["upper"],
-                step=0.01 if "step" not in ranges else ranges["step"],
-                value=(
-                    (ranges["lower"] + ranges["upper"]) / 2
-                    if "value" not in ranges
-                    else ranges["value"]
-                ),
-            )
-            for p_name, ranges in ranged_distkwargs.items()
-        }
-    )
-
-    html = mo.Html(
-        f"<h2>{name}</h2><table>"
-        + "\n".join(
-            [
-                f"<tr><td>{p_name if 'description' not in ranges else ranges['description']}</td><td>{params[p_name]}</td></tr>"
-                for p_name, ranges in ranged_distkwargs.items()
-            ]
-        )
-        + "</table>"
-    )
-
-    return {
-        "name": name,
-        "ui": html.batch(
-            **{p_name: params[p_name] for p_name in ranged_distkwargs.keys()}
-        ),
-        "params": params,
-        "dist": _dist,
-    }
 
 
 def distribution_params(
@@ -205,6 +161,7 @@ def display_params(
     name: str,
     params: mo.ui.dictionary,
     dist: str | Callable,
+    invars: dict,
     descriptions: dict = {},
 ):
     _dist = dist if isinstance(dist, Callable) else SCIPY_DISTRIBUTIONS[dist]
@@ -230,6 +187,7 @@ def display_params(
         )
         + "</table>"
     )
+    invars[name] = {"dist": _dist, "params": params}
     return mo.hstack(
         [
             mo.vstack([mo.md(f"## {name}"), html]),

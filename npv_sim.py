@@ -13,14 +13,12 @@ def npv_sim(
     n_samples,
     norm,
 ):
-
-    mo.stop(not n_samples)
-
     # Define simulation functions
     def preprocess(case):
+        print(case.invals["Hours Saved per Employee"].val)
         return (
             {
-                "hours_saved": case.invals["hours_saved"].val,
+                "hours_saved": case.invals["Hours Saved per Employee"].val,
                 "employees": case.constvals["employees"],
                 "hourly_rate": case.invals["hourly_rate"].val,
                 "bug_reduction": case.invals["bug_reduction"].val,
@@ -56,11 +54,11 @@ def npv_sim(
     sim.addConstVal(name="employees", val=employees)
 
     ## Time Savings Benefits (Internal)
-    sim.addInVar(
-        name="hours_saved",
-        dist=triang,
-        distkwargs={"c": 0.5, "loc": hours_saved * 0.7, "scale": hours_saved * 0.6},
-    )
+    # sim.addInVar(
+    #     name="hours_saved",
+    #     dist=triang,
+    #     distkwargs={"c": 0.5, "loc": hours_saved * 0.7, "scale": hours_saved * 0.6},
+    # )
     sim.addInVar(
         name="hourly_rate",
         dist=norm,
