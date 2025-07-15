@@ -128,15 +128,13 @@ def _(mo):
 
 @app.cell
 def _(aycpe, display_sliders, factory_vars):
-    display_sliders(
-        "Avg Yearly Fully Loaded Cost Per Employee ($)", aycpe, factory_vars
-    )
+    display_sliders("Avg Yearly Fully Loaded Cost Per Employee ($)", aycpe, factory_vars)
     return
 
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    prodconv = params_sliders(same_pert_ranges(0, 0.3, 0.5, 0.7, 1, step=0.05))
+    prodconv = params_sliders(same_pert_ranges(0, .3, .5, .7, 1, step=0.05))
     return (prodconv,)
 
 
@@ -154,9 +152,7 @@ def _(display_sliders, invars, pert, pert_descriptions, prodconv):
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""Productivity conversion is the rate at which saved time is re-deployed as work"""
-    )
+    mo.md(r"""Productivity conversion is the rate at which saved time is re-deployed as work""")
     return
 
 
@@ -168,7 +164,7 @@ def _(mo):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    bug_reduction = params_sliders(same_pert_ranges(-1, 0, 0.2, 0.3, 1, step=0.05))
+    bug_reduction = params_sliders(same_pert_ranges(-1, 0, .2, .3, 1, step=0.05))
     return (bug_reduction,)
 
 
@@ -186,7 +182,7 @@ def _(bug_reduction, display_sliders, invars, pert, pert_descriptions):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    bug_time = params_sliders(same_pert_ranges(0, 0.2, 0.3, 0.6, 1, step=0.05))
+    bug_time = params_sliders(same_pert_ranges(0, .2, .3, .6, 1, step=0.05))
     return (bug_time,)
 
 
@@ -204,17 +200,13 @@ def _(bug_time, display_sliders, invars, pert, pert_descriptions):
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""Bug time rate is the fraction of employee time lost to remediating issues including internal issue management, process disruption, staff burnout, and customer support."""
-    )
+    mo.md(r"""Bug time rate is the fraction of employee time lost to remediating issues including internal issue management, process disruption, staff burnout, and customer support.""")
     return
 
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    ext_bug_cost = params_sliders(
-        same_pert_ranges(0, 0, 20000, 100000, 1000000, step=10000)
-    )
+    ext_bug_cost = params_sliders(same_pert_ranges(0, 0, 20000, 100000, 1000000, step=10000))
     return (ext_bug_cost,)
 
 
@@ -251,7 +243,7 @@ def _(mo):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    feat_rate = params_sliders(same_pert_ranges(0, 0.1, 0.25, 0.4, 1, step=0.05))
+    feat_rate = params_sliders(same_pert_ranges(0, .1, .25, .4, 1, step=0.05))
     return (feat_rate,)
 
 
@@ -269,7 +261,7 @@ def _(display_sliders, feat_rate, invars, pert, pert_descriptions):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    feat_attr_rate = params_sliders(same_pert_ranges(0, 0, 0.1, 0.2, 1, step=0.05))
+    feat_attr_rate = params_sliders(same_pert_ranges(0, 0, .1, .2, 1, step=0.05))
     return (feat_attr_rate,)
 
 
@@ -317,9 +309,7 @@ def _(display_sliders, invars, new_cust, pert, pert_descriptions):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    cust_value = params_sliders(
-        same_pert_ranges(10000, 100000, 500000, 1000000, 5000000, step=5000)
-    )
+    cust_value = params_sliders(same_pert_ranges(10000, 100000, 500000, 1000000, 5000000, step=5000))
     return (cust_value,)
 
 
@@ -343,7 +333,7 @@ def _(mo):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    ret_imrpov_rate = params_sliders(same_pert_ranges(0, 0, 0.1, 0.4, 1, step=0.05))
+    ret_imrpov_rate = params_sliders(same_pert_ranges(0, 0, .1, .4, 1, step=0.05))
     return (ret_imrpov_rate,)
 
 
@@ -364,8 +354,8 @@ def _(mo):
     turnover_rate = mo.ui.slider(
         start=0,
         stop=1,
-        step=0.05,
-        value=0.2,
+        step=.05,
+        value=.2,
     )
     return (turnover_rate,)
 
@@ -378,9 +368,7 @@ def _(display_sliders, invars, turnover_rate):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    replacement_cost = params_sliders(
-        same_pert_ranges(20000, 60000, 75000, 90000, 120000, step=5000)
-    )
+    replacement_cost = params_sliders(same_pert_ranges(20000, 60000, 75000, 90000, 120000, step=5000))
     return (replacement_cost,)
 
 
@@ -398,9 +386,7 @@ def _(display_sliders, invars, pert, pert_descriptions, replacement_cost):
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""Replacement cost includes recruiting, interviewing, onboarding, and lost productivity."""
-    )
+    mo.md(r"""Replacement cost includes recruiting, interviewing, onboarding, and lost productivity.""")
     return
 
 
@@ -412,9 +398,7 @@ def _(mo):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    yts = params_sliders(
-        same_pert_ranges(20000, 30000, 50000, 70000, 100000, step=5000)
-    )
+    yts = params_sliders(same_pert_ranges(20000, 30000, 50000, 70000, 100000, step=5000))
     return (yts,)
 
 
@@ -432,9 +416,7 @@ def _(display_sliders, invars, pert, pert_descriptions, yts):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    monitoring = params_sliders(
-        same_pert_ranges(5000, 10000, 15000, 25000, 100000, step=5000)
-    )
+    monitoring = params_sliders(same_pert_ranges(5000, 10000, 15000, 25000, 100000, step=5000))
     return (monitoring,)
 
 
@@ -452,9 +434,7 @@ def _(display_sliders, invars, monitoring, pert, pert_descriptions):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    tcm = params_sliders(
-        same_pert_ranges(10000, 15000, 25000, 45000, 100000, step=5000)
-    )
+    tcm = params_sliders(same_pert_ranges(10000, 15000, 25000, 45000, 100000, step=5000))
     return (tcm,)
 
 
@@ -495,7 +475,7 @@ def _(ai_staff, display_sliders, invars, pert, pert_descriptions):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    disc_rate = params_sliders(same_pert_ranges(0, 0.15, 0.25, 0.35, 1, step=0.05))
+    disc_rate = params_sliders(same_pert_ranges(0, .15, .25, .35, 1, step=0.05))
     return (disc_rate,)
 
 
@@ -512,12 +492,21 @@ def _(disc_rate, display_sliders, invars, pert, pert_descriptions):
 
 
 @app.cell
-def _(discount_slider_display, mo):
-    run_button = mo.ui.run_button(
-        kind="success", label="Run Simulation", full_width=True
-    )
-    mo.vstack([mo.md("## Simulation"), discount_slider_display, run_button])
+def _(mo):
+    get_message, set_message = mo.state("Click button above to run with updated parameters")
+    return get_message, set_message
+
+
+@app.cell
+def _(mo, set_message):
+    run_button = mo.ui.run_button(kind="success", label="Run Simulation", full_width=True, on_change=lambda value: set_message("Starting simulation...") if value else None)
     return (run_button,)
+
+
+@app.cell
+def _(discount_slider_display, get_message, mo, run_button):
+    mo.vstack([mo.md("## Simulation"), discount_slider_display, run_button, mo.md(get_message())])
+    return
 
 
 @app.cell
@@ -528,10 +517,11 @@ def _(
     npv_model_factory,
     outvals_to_dict,
     run_button,
+    set_message,
     sim_factory,
 ):
     mo.stop(not run_button.value)
-
+    set_message("Running simulation...")
     sim = sim_factory(
         name="ai_roi_npv_analysis",
         model_factory=npv_model_factory,
@@ -540,20 +530,11 @@ def _(
         ndraws=100000,
         debug=True,
     )
-    sim.runSim()
+    with mo.redirect_stderr():
+        sim.runSim()
+    set_message(f"Finished simulation in {sim.runtime}")
     results = outvals_to_dict(sim)
     return (results,)
-
-
-@app.cell
-def _(mo):
-    mo.md(
-        r"""
-    ### Results
-    #### Year 1 ROI
-    """
-    )
-    return
 
 
 @app.cell
@@ -562,11 +543,7 @@ def _(FuncFormatter, abbrev_format, mo, np, plt, results):
 
     # NPV Distribution
     _ax.hist(
-        results["Year_1_Net"],
-        bins=100,
-        alpha=1,
-        color="lightblue",
-        edgecolor="lightblue",
+        results["Year_1_Net"], bins=100, alpha=1, color="lightblue", edgecolor="lightblue"
     )
     _ax.axvline(
         np.mean(results["Year_1_Net"]),
@@ -596,7 +573,7 @@ def _(FuncFormatter, abbrev_format, mo, np, plt, results):
     - Number of Simulations: {len(results["Year_1_Net"]):,}
     """
 
-    mo.vstack([mo.as_html(_fig), mo.md(_results_text)])
+    mo.vstack([mo.md("### Results\n#### Year 1 ROI"), mo.as_html(_fig), mo.md(_results_text)])
     return
 
 

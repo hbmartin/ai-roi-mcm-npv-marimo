@@ -22,5 +22,29 @@ dev = [
     "ruff>=0.12.3",
     "ty>=0.0.1a14",
 ]
+
 [tool.marimo.runtime]
 pythonpath = ["."]
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [".bzr", ".direnv", ".eggs", ".git", ".git-rewrite", ".hg", ".ipynb_checkpoints", ".mypy_cache", ".nox", ".pants.d", ".pyenv", ".pytest_cache", ".pytype", ".ruff_cache", ".svn", ".tox", ".venv", ".vscode", "__pypackages__", "_build", "buck-out", "build", "dist", "node_modules", "setup.py", "site-packages", "venv"]
+
+# Same as Black.
+line-length = 88
+indent-width = 4
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["ALL"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["ANN001", "ANN201", "D100", "D102", "D400", "D415", "E501", "F401", "INP001", "PLC0415", "PLR2004", "PT009", "PT027", "S101", "SIM115", "TRY003"]
+
+
+[tool.ruff.format]
+# Same as Black.
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
