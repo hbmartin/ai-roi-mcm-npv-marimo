@@ -1,4 +1,4 @@
-from marimo_components import _DEFAULT_STEP
+from marimo_utils.marimo_components import _DEFAULT_STEP
 
 
 pert_descriptions = {

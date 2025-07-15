@@ -9,23 +9,27 @@ def setup_1():
     import marimo as mo
     import numpy as np
     import matplotlib.pyplot as plt
+    from matplotlib.ticker import FuncFormatter
     from npv_model import npv_model_factory
-    from npv_sim import sim_factory
-    from marimo_components import (
+    from marimo_utils import (
+        abbrev_format,
         params_sliders,
         display_sliders,
         generate_ranges,
     )
     from params_pert import pert_descriptions, pert_ranges, same_pert_ranges
     from betapert import pert
-    from params_to_sim import params_to_model, params_to_sim
+    from monaco_utils import outvals_to_dict, sim_factory
 
     return (
+        FuncFormatter,
+        abbrev_format,
         display_sliders,
         generate_ranges,
         mo,
         np,
         npv_model_factory,
+        outvals_to_dict,
         params_sliders,
         pert,
         pert_descriptions,
@@ -124,13 +128,15 @@ def _(mo):
 
 @app.cell
 def _(aycpe, display_sliders, factory_vars):
-    display_sliders("Avg Yearly Fully Loaded Cost Per Employee ($)", aycpe, factory_vars)
+    display_sliders(
+        "Avg Yearly Fully Loaded Cost Per Employee ($)", aycpe, factory_vars
+    )
     return
 
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    prodconv = params_sliders(same_pert_ranges(0, .3, .5, .7, 1, step=0.05))
+    prodconv = params_sliders(same_pert_ranges(0, 0.3, 0.5, 0.7, 1, step=0.05))
     return (prodconv,)
 
 
@@ -148,7 +154,9 @@ def _(display_sliders, invars, pert, pert_descriptions, prodconv):
 
 @app.cell
 def _(mo):
-    mo.md(r"""Productivity conversion is the rate at which saved time is re-deployed as work""")
+    mo.md(
+        r"""Productivity conversion is the rate at which saved time is re-deployed as work"""
+    )
     return
 
 
@@ -160,7 +168,7 @@ def _(mo):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    bug_reduction = params_sliders(same_pert_ranges(-1, 0, .2, .3, 1, step=0.05))
+    bug_reduction = params_sliders(same_pert_ranges(-1, 0, 0.2, 0.3, 1, step=0.05))
     return (bug_reduction,)
 
 
@@ -178,7 +186,7 @@ def _(bug_reduction, display_sliders, invars, pert, pert_descriptions):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    bug_time = params_sliders(same_pert_ranges(0, .2, .3, .6, 1, step=0.05))
+    bug_time = params_sliders(same_pert_ranges(0, 0.2, 0.3, 0.6, 1, step=0.05))
     return (bug_time,)
 
 
@@ -196,13 +204,17 @@ def _(bug_time, display_sliders, invars, pert, pert_descriptions):
 
 @app.cell
 def _(mo):
-    mo.md(r"""Bug time rate is the fraction of employee time lost to remediating issues including internal issue management, process disruption, staff burnout, and customer support.""")
+    mo.md(
+        r"""Bug time rate is the fraction of employee time lost to remediating issues including internal issue management, process disruption, staff burnout, and customer support."""
+    )
     return
 
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    ext_bug_cost = params_sliders(same_pert_ranges(0, 0, 20000, 100000, 1000000, step=10000))
+    ext_bug_cost = params_sliders(
+        same_pert_ranges(0, 0, 20000, 100000, 1000000, step=10000)
+    )
     return (ext_bug_cost,)
 
 
@@ -239,7 +251,7 @@ def _(mo):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    feat_rate = params_sliders(same_pert_ranges(0, .1, .25, .4, 1, step=0.05))
+    feat_rate = params_sliders(same_pert_ranges(0, 0.1, 0.25, 0.4, 1, step=0.05))
     return (feat_rate,)
 
 
@@ -257,7 +269,7 @@ def _(display_sliders, feat_rate, invars, pert, pert_descriptions):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    feat_attr_rate = params_sliders(same_pert_ranges(0, 0, .1, .2, 1, step=0.05))
+    feat_attr_rate = params_sliders(same_pert_ranges(0, 0, 0.1, 0.2, 1, step=0.05))
     return (feat_attr_rate,)
 
 
@@ -305,7 +317,9 @@ def _(display_sliders, invars, new_cust, pert, pert_descriptions):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    cust_value = params_sliders(same_pert_ranges(10000, 100000, 500000, 1000000, 5000000, step=5000))
+    cust_value = params_sliders(
+        same_pert_ranges(10000, 100000, 500000, 1000000, 5000000, step=5000)
+    )
     return (cust_value,)
 
 
@@ -329,7 +343,7 @@ def _(mo):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    ret_imrpov_rate = params_sliders(same_pert_ranges(0, 0, .1, .4, 1, step=0.05))
+    ret_imrpov_rate = params_sliders(same_pert_ranges(0, 0, 0.1, 0.4, 1, step=0.05))
     return (ret_imrpov_rate,)
 
 
@@ -350,8 +364,8 @@ def _(mo):
     turnover_rate = mo.ui.slider(
         start=0,
         stop=1,
-        step=.05,
-        value=.2,
+        step=0.05,
+        value=0.2,
     )
     return (turnover_rate,)
 
@@ -364,7 +378,9 @@ def _(display_sliders, invars, turnover_rate):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    replacement_cost = params_sliders(same_pert_ranges(20000, 60000, 75000, 90000, 120000, step=5000))
+    replacement_cost = params_sliders(
+        same_pert_ranges(20000, 60000, 75000, 90000, 120000, step=5000)
+    )
     return (replacement_cost,)
 
 
@@ -382,7 +398,9 @@ def _(display_sliders, invars, pert, pert_descriptions, replacement_cost):
 
 @app.cell
 def _(mo):
-    mo.md(r"""Replacement cost includes recruiting, interviewing, onboarding, and lost productivity.""")
+    mo.md(
+        r"""Replacement cost includes recruiting, interviewing, onboarding, and lost productivity."""
+    )
     return
 
 
@@ -394,7 +412,9 @@ def _(mo):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    yts = params_sliders(same_pert_ranges(20000, 30000, 50000, 70000, 100000, step=5000))
+    yts = params_sliders(
+        same_pert_ranges(20000, 30000, 50000, 70000, 100000, step=5000)
+    )
     return (yts,)
 
 
@@ -412,7 +432,9 @@ def _(display_sliders, invars, pert, pert_descriptions, yts):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    monitoring = params_sliders(same_pert_ranges(5000, 10000, 15000, 25000, 100000, step=5000))
+    monitoring = params_sliders(
+        same_pert_ranges(5000, 10000, 15000, 25000, 100000, step=5000)
+    )
     return (monitoring,)
 
 
@@ -430,7 +452,9 @@ def _(display_sliders, invars, monitoring, pert, pert_descriptions):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    tcm = params_sliders(same_pert_ranges(10000, 15000, 25000, 45000, 100000, step=5000))
+    tcm = params_sliders(
+        same_pert_ranges(10000, 15000, 25000, 45000, 100000, step=5000)
+    )
     return (tcm,)
 
 
@@ -471,159 +495,148 @@ def _(ai_staff, display_sliders, invars, pert, pert_descriptions):
 
 @app.cell
 def _(params_sliders, same_pert_ranges):
-    disc_rate = params_sliders(same_pert_ranges(0, .15, .25, .35, 1, step=0.05))
+    disc_rate = params_sliders(same_pert_ranges(0, 0.15, 0.25, 0.35, 1, step=0.05))
     return (disc_rate,)
 
 
 @app.cell
 def _(disc_rate, display_sliders, invars, pert, pert_descriptions):
-    display_sliders(
+    discount_slider_display = display_sliders(
         name="Discount Rate",
         sliders=disc_rate,
         invars=invars,
         dist=pert,
         descriptions=pert_descriptions,
     )
-    return
+    return (discount_slider_display,)
 
 
 @app.cell
-def _(mo):
-    run_button = mo.ui.run_button(kind="success", label="Run Simulation", full_width=True)
-    run_button
+def _(discount_slider_display, mo):
+    run_button = mo.ui.run_button(
+        kind="success", label="Run Simulation", full_width=True
+    )
+    mo.vstack([mo.md("## Simulation"), discount_slider_display, run_button])
     return (run_button,)
 
 
 @app.cell
-def _(factory_vars, mo, npv_model_factory, run_button, sim_factory):
+def _(
+    factory_vars,
+    invars,
+    mo,
+    npv_model_factory,
+    outvals_to_dict,
+    run_button,
+    sim_factory,
+):
     mo.stop(not run_button.value)
-    # sim = npv_sim(
-    #     params_to_model(npv_model_factory, factory_vars),
-    #     n_samples=100000,
-    # )
-    # params_to_sim(sim, invars)
+
     sim = sim_factory(
         name="ai_roi_npv_analysis",
         model_factory=npv_model_factory,
         factory_vars=factory_vars,
+        invars=invars,
         ndraws=100000,
+        debug=True,
     )
     sim.runSim()
-    # Extract results
-    npv_values = [case.outvals["Npv"].val for case in sim.cases]
-    benefits_values = [case.outvals["Annual_Benefits"].val for case in sim.cases]
-    time_savings_values = [case.outvals["Time_Savings"].val for case in sim.cases]
-    quality_savings_values = [case.outvals["Quality_Savings"].val for case in sim.cases]
-    return (
-        benefits_values,
-        npv_values,
-        quality_savings_values,
-        time_savings_values,
-    )
+    results = outvals_to_dict(sim)
+    return (results,)
 
 
 @app.cell
-def plot_results(
-    benefits_values,
-    mo,
-    np,
-    npv_values,
-    plt,
-    quality_savings_values,
-    time_savings_values,
-):
-    # Create visualization of NPV results
-    fig2, axes = plt.subplots(2, 2, figsize=(15, 12))
-    # NPV Distribution
-    axes[0, 0].hist(
-        npv_values, bins=50, alpha=0.7, color="lightblue", edgecolor="black"
-    )
-    axes[0, 0].axvline(
-        np.mean(npv_values),
-        color="red",
-        linestyle="--",
-        label=f"Mean: ${np.mean(npv_values):,.0f}",
-    )
-    axes[0, 0].axvline(0, color="black", linestyle="-", alpha=0.5, label="Break-even")
-    axes[0, 0].set_title("NPV Distribution")
-    axes[0, 0].set_xlabel("NPV ($)")
-    axes[0, 0].set_ylabel("Frequency")
-    axes[0, 0].legend()
-    axes[0, 0].grid(True, alpha=0.3)
-
-    # Benefits Breakdown
-    axes[0, 1].hist(
-        benefits_values, bins=30, alpha=0.7, color="lightgreen", edgecolor="black"
-    )
-    axes[0, 1].set_title("Annual Benefits Distribution")
-    axes[0, 1].set_xlabel("Annual Benefits ($)")
-    axes[0, 1].set_ylabel("Frequency")
-    axes[0, 1].grid(True, alpha=0.3)
-
-    # Time Savings vs Quality Savings
-    scatter = axes[1, 0].scatter(
-        time_savings_values,
-        quality_savings_values,
-        c=npv_values,
-        cmap="RdYlGn",
-        alpha=0.6,
-    )
-    axes[1, 0].set_xlabel("Time Savings ($)")
-    axes[1, 0].set_ylabel("Quality Savings ($)")
-    axes[1, 0].set_title("Time vs Quality Savings (colored by NPV)")
-    plt.colorbar(scatter, ax=axes[1, 0])
-    axes[1, 0].grid(True, alpha=0.3)
-
-    # Risk Analysis
-    positive_npv_pct = (np.array(npv_values) > 0).mean() * 100
-    axes[1, 1].pie(
-        [positive_npv_pct, 100 - positive_npv_pct],
-        labels=[
-            f"Positive NPV\n({positive_npv_pct:.1f}%)",
-            f"Negative NPV\n({100-positive_npv_pct:.1f}%)",
-        ],
-        colors=["lightgreen", "lightcoral"],
-        autopct="%1.1f%%",
-    )
-    axes[1, 1].set_title("NPV Risk Assessment")
-
-    plt.tight_layout()
-
-    # Calculate comprehensive statistics
-    npv_mean = np.mean(npv_values)
-    npv_std = np.std(npv_values)
-    npv_p5 = np.percentile(npv_values, 5)
-    npv_p95 = np.percentile(npv_values, 95)
-    benefits_mean = np.mean(benefits_values)
-
-    results_text = f"""
-    **NPV Monte Carlo Results:**
-    - Mean NPV: ${npv_mean:,.0f}
-    - NPV Std Dev: ${npv_std:,.0f}
-    - 90% Confidence Interval: [${npv_p5:,.0f}, ${npv_p95:,.0f}]
-    - Probability of Positive NPV: {positive_npv_pct:.1f}%
-    - Mean Annual Benefits: ${benefits_mean:,.0f}
-    - Number of Simulations: {len(npv_values):,}
+def _(mo):
+    mo.md(
+        r"""
+    ### Results
+    #### Year 1 ROI
     """
-
-    mo.vstack([mo.as_html(fig2), mo.md(results_text)])
+    )
     return
 
 
 @app.cell
-def _(mo, np, npv_values):
-    percentiles = [5, 10, 25, 50, 75, 90, 95]
-    percentile_values = np.percentile(npv_values, percentiles)
+def _(FuncFormatter, abbrev_format, mo, np, plt, results):
+    _fig, _ax = plt.subplots(figsize=(10, 6))
 
-    percentile_table = mo.ui.table(
-        data=[
-            {"Percentile": f"{p}%", "NPV": f"${v:,.0f}"}
-            for p, v in zip(percentiles, percentile_values)
-        ],
-        selection=None,
+    # NPV Distribution
+    _ax.hist(
+        results["Year_1_Net"],
+        bins=100,
+        alpha=1,
+        color="lightblue",
+        edgecolor="lightblue",
     )
+    _ax.axvline(
+        np.mean(results["Year_1_Net"]),
+        color="red",
+        linestyle="--",
+        label=f"Mean: ${np.mean(results["Year_1_Net"]):,.0f}",
+    )
+    _ax.axvline(0, color="black", linestyle="-", alpha=0.5, label="Break-even")
+    _ax.set_title("First Year Net Benefits")
+    _ax.set_xlabel("NPV ($)")
+    _ax.set_ylabel("Frequency")
+    _ax.xaxis.set_major_formatter(FuncFormatter(abbrev_format))
+    _ax.legend()
+    _ax.grid(True, alpha=0.3)
 
-    mo.vstack([mo.md("**NPV Percentiles:**"), percentile_table])
+    plt.tight_layout()
+
+    _p5 = np.percentile(results["Year_1_Net"], 5)
+    _p95 = np.percentile(results["Year_1_Net"], 95)
+    _positive_pct = (np.array(results["Year_1_Net"]) > 0).mean() * 100
+
+    _results_text = f"""
+    **NPV Monte Carlo Results:**
+
+    - 90% Confidence Interval: [${_p5:,.0f}, ${_p95:,.0f}]
+    - Probability of Positive NPV: {_positive_pct:.1f}%
+    - Number of Simulations: {len(results["Year_1_Net"]):,}
+    """
+
+    mo.vstack([mo.as_html(_fig), mo.md(_results_text)])
+    return
+
+
+@app.cell
+def plot_results(FuncFormatter, abbrev_format, mo, np, plt, results):
+    _fig, _ax = plt.subplots(figsize=(10, 6))
+
+    # NPV Distribution
+    _ax.hist(
+        results["Npv"], bins=100, alpha=1, color="lightblue", edgecolor="lightblue"
+    )
+    _ax.axvline(
+        np.mean(results["Npv"]),
+        color="red",
+        linestyle="--",
+        label=f"Mean: ${np.mean(results["Npv"]):,.0f}",
+    )
+    _ax.axvline(0, color="black", linestyle="-", alpha=0.5, label="Break-even")
+    _ax.set_title("3 Year ROI NPV Distribution")
+    _ax.set_xlabel("NPV ($)")
+    _ax.set_ylabel("Frequency")
+    _ax.xaxis.set_major_formatter(FuncFormatter(abbrev_format))
+    _ax.legend()
+    _ax.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+
+    _p5 = np.percentile(results["Npv"], 5)
+    _p95 = np.percentile(results["Npv"], 95)
+    _positive_pct = (np.array(results["Npv"]) > 0).mean() * 100
+
+    _results_text = f"""
+    **NPV Monte Carlo Results:**
+
+    - 90% Confidence Interval: [${_p5:,.0f}, ${_p95:,.0f}]
+    - Probability of Positive NPV: {_positive_pct:.1f}%
+    - Number of Simulations: {len(results["Npv"]):,}
+    """
+
+    mo.vstack([mo.md("### 3 Year NPV ROI"), mo.as_html(_fig), mo.md(_results_text)])
     return
 
 

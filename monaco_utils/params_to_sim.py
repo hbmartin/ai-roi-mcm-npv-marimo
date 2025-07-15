@@ -2,7 +2,7 @@ import re
 from typing import Callable
 from monaco import Case, Sim
 
-from marimo_components import _CONST
+_CONST = "_constant"
 
 
 def _key(k: str) -> str:
@@ -49,3 +49,12 @@ def params_to_model(model_factory: Callable, factory_vars: dict) -> Callable:
             for k, v in factory_vars.items()
         }
     )
+
+
+def outvals_to_dict(sim: Sim) -> dict:
+    keys = sim.cases[0].outvals.keys()
+    results = {k: [] for k in keys}
+    for case in sim.cases:
+        for k in keys:
+            results[k].append(case.outvals[k].val)
+    return results

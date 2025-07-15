@@ -115,14 +115,11 @@ def npv_model_factory(
 
         return {
             "npv": npv,
-            "annual_benefits": total_annual_benefits,
             "time_savings": annual_time_savings,
             "quality_savings": annual_quality_savings,
             "revenue_impact": annual_revenue_impact,
             "retention_savings": annual_retention_savings,
             "year_1_net": year_1_net_flow,
-            "year_2_net": year_2_net_flow,
-            "year_3_net": year_3_net_flow,
         }
 
     return npv_model

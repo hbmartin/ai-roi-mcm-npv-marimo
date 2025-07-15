@@ -6,7 +6,12 @@ from scipy.stats import uniform, triang, beta, norm
 import numpy as np
 
 # Dictionary mapping distribution keys to scipy callables
-SCIPY_DISTRIBUTIONS: dict[str, Callable] = {"uniform": uniform, "triang": triang, "beta": beta, "norm": norm}
+SCIPY_DISTRIBUTIONS: dict[str, Callable] = {
+    "uniform": uniform,
+    "triang": triang,
+    "beta": beta,
+    "norm": norm,
+}
 _CONST = "_constant"
 _DEFAULT_STEP = 0.1
 
@@ -145,7 +150,7 @@ def params_sliders(
     return params
 
 
-def _format_func(value, tick_number):
+def abbrev_format(value, tick_number):
     if value >= 1e6:
         return f"{value/1e6:.0f}M"
     elif value >= 1e3:
@@ -168,7 +173,7 @@ def _dist_plot(params: dict, dist: Callable):
     plt.grid(True, alpha=0.3)
     plt.tick_params(axis="y", labelleft=False)
     ax = plt.gca()
-    ax.xaxis.set_major_formatter(FuncFormatter(_format_func))
+    ax.xaxis.set_major_formatter(FuncFormatter(abbrev_format))
     return mo.as_html(fig)
 
 
@@ -229,5 +234,5 @@ def display_sliders(
     else:  # Single slider is a constant
         invars[name] = {"dist": _CONST, "params": sliders}
         return mo.vstack(
-            [mo.md(f"### {name} = {_format_func(sliders.value, None)}"), sliders]
+            [mo.md(f"### {name} = {abbrev_format(sliders.value, None)}"), sliders]
         )
