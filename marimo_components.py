@@ -1,11 +1,14 @@
 from typing import Callable
 import marimo as mo
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 from scipy.stats import uniform, triang, beta, norm
 import numpy as np
 
 # Dictionary mapping distribution keys to scipy callables
-SCIPY_DISTRIBUTIONS = {"uniform": uniform, "triang": triang, "beta": beta, "norm": norm}
+SCIPY_DISTRIBUTIONS: dict[str, Callable] = {"uniform": uniform, "triang": triang, "beta": beta, "norm": norm}
+_CONST = "_constant"
+_DEFAULT_STEP = 0.1
 
 _distributions = {
     "triang": {
@@ -119,7 +122,7 @@ def generate_ranges(distribution: str, ranged_distkwargs: dict) -> dict:
     return _deep_merge(ranged_copy, ranged_distkwargs)
 
 
-def distribution_params(
+def params_sliders(
     ranged_distkwargs: dict,
 ):
 
@@ -128,7 +131,7 @@ def distribution_params(
             p_name: mo.ui.slider(
                 start=ranges["lower"],
                 stop=ranges["upper"],
-                step=0.01 if "step" not in ranges else ranges["step"],
+                step=_DEFAULT_STEP if "step" not in ranges else ranges["step"],
                 value=(
                     (ranges["lower"] + ranges["upper"]) / 2
                     if "value" not in ranges
@@ -140,6 +143,15 @@ def distribution_params(
     )
 
     return params
+
+
+def _format_func(value, tick_number):
+    if value >= 1e6:
+        return f"{value/1e6:.0f}M"
+    elif value >= 1e3:
+        return f"{value/1e3:.0f}k"
+    else:
+        return f"{value:.1f}"
 
 
 def _dist_plot(params: dict, dist: Callable):
@@ -154,17 +166,20 @@ def _dist_plot(params: dict, dist: Callable):
     plt.fill_between(x, pdf_values, alpha=0.3)
     plt.ylabel("Probability Density")
     plt.grid(True, alpha=0.3)
+    plt.tick_params(axis="y", labelleft=False)
+    ax = plt.gca()
+    ax.xaxis.set_major_formatter(FuncFormatter(_format_func))
     return mo.as_html(fig)
 
 
-def display_params(
+def _display_sliders_with_plot(
     name: str,
-    params: mo.ui.dictionary,
+    sliders: mo.ui.dictionary,
     dist: str | Callable,
-    invars: dict,
+    invars: dict[str, dict],
     descriptions: dict = {},
 ):
-    _dist = dist if isinstance(dist, Callable) else SCIPY_DISTRIBUTIONS[dist]
+    _dist = dist if callable(dist) else SCIPY_DISTRIBUTIONS[str(dist)]
     parameter_descriptions = (
         descriptions
         if descriptions or not isinstance(dist, str)
@@ -174,7 +189,7 @@ def display_params(
                 if dist not in _distributions
                 else _distributions[str(dist)][k].get("description")
             )
-            for k, _ in params.items()
+            for k, _ in sliders.items()
         }
     )
     html = mo.Html(
@@ -182,17 +197,37 @@ def display_params(
         + "\n".join(
             [
                 f"<tr><td>{parameter_descriptions[k]}</td><td>{v}</td></tr>"
-                for k, v in params.items()
+                for k, v in sliders.items()
             ]
         )
         + "</table>"
     )
-    invars[name] = {"dist": _dist, "params": params}
+    invars[name] = {"dist": _dist, "params": sliders}
     return mo.hstack(
         [
-            mo.vstack([mo.md(f"## {name}"), html]),
-            _dist_plot({k: v.value for k, v in params.items()}, _dist),
+            mo.vstack([mo.md(f"### {name}"), html]),
+            _dist_plot({k: v.value for k, v in sliders.items()}, _dist),
         ],
         align="start",
         widths=[2, 1],
     )
+
+
+def display_sliders(
+    name: str,
+    sliders: mo.ui.dictionary | mo.ui.slider,
+    invars: dict[str, dict],
+    dist: str | Callable | None = None,
+    descriptions: dict = {},
+):
+    if isinstance(sliders, mo.ui.dictionary):
+        if dist is None:
+            raise ValueError(
+                "dist is required for multiple sliders, use _CONST for constants"
+            )
+        return _display_sliders_with_plot(name, sliders, dist, invars, descriptions)
+    else:  # Single slider is a constant
+        invars[name] = {"dist": _CONST, "params": sliders}
+        return mo.vstack(
+            [mo.md(f"### {name} = {_format_func(sliders.value, None)}"), sliders]
+        )
