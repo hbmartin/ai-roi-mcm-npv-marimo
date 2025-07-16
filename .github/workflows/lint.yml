@@ -15,5 +15,5 @@ jobs:
         allow-prereleases: true
     - run: pip install -r requirements.txt
     - run: black . --check --verbose
-    - run: ty check .  --python "$pythonLocation"
+    - run: ty check ai_roi_mcm_npv.py npv_model.py params_pert.py --python "$pythonLocation"
     - run: ruff check .

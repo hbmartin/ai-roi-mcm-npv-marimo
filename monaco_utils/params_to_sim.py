@@ -121,16 +121,10 @@ def outvals_to_dict(sim: Sim) -> dict:
         sim: A Monaco Sim object that has been run
 
     Returns:
-        Dictionary mapping output names to lists of values across all cases
-
-    The output values from each simulation case are collected into lists under their
-    respective keys. This allows easy access to the full distribution of results for
-    each output metric.
+        Dictionary mapping outvar to the np array of the output values.
 
     """
-    keys = sim.cases[0].outvals.keys()
-    results = {k: [] for k in keys}
-    for case in sim.cases:
-        for k in keys:
-            results[k].append(case.outvals[k].val)
-    return results
+
+    return {
+        k: outvar.nums for k, outvar in sim.outvars.items()
+    }
