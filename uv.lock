@@ -12,6 +12,7 @@ dependencies = [
     { name = "marimo-scipy-utils" },
     { name = "matplotlib" },
     { name = "monaco" },
+    { name = "monaco-dict-utils" },
     { name = "numpy" },
     { name = "openpyxl" },
     { name = "pandas" },
@@ -33,6 +34,7 @@ requires-dist = [
     { name = "marimo-scipy-utils", specifier = ">=0.1.0" },
     { name = "matplotlib", specifier = ">=3.10.3" },
     { name = "monaco", specifier = ">=0.15.1" },
+    { name = "monaco-dict-utils", specifier = ">=0.1.0" },
     { name = "numpy", specifier = ">=2.3.1" },
     { name = "openpyxl", specifier = ">=3.1.5" },
     { name = "pandas", specifier = ">=2.3.1" },
@@ -511,6 +513,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/21/5c/1263ad8a878ef4c83fce78a3008242ad32406470eee4461dd3a68dd79be4/monaco-0.16.0.tar.gz", hash = "sha256:c33358a198424ab1e4fde3674d1dfe14be99ca21ed01636e8c007c720794fcde", size = 53678, upload-time = "2025-07-16T20:08:27.094Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/34/0e/761f8ddd70def88e150b9b56e907e92cc0556a66c0a5c77b0f5ddca352fc/monaco-0.16.0-py3-none-any.whl", hash = "sha256:5171da83cc8ed67a889feaf96890befd7962c1698d06850f770581bd006e0d49", size = 59981, upload-time = "2025-07-16T20:08:25.706Z" },
+]
+
+[[package]]
+name = "monaco-dict-utils"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "monaco" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/11/3c/1ab278bd2f3ce478a03fc2b33411a75a2850e26e0a3a266f808e42c92d63/monaco_dict_utils-0.1.0.tar.gz", hash = "sha256:fa0c997a1a5480a8487c0e047668a3caebcd7b3276d22102e332fa6b1d9db133", size = 7905, upload-time = "2025-07-16T21:12:16.423Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/5b/49/aaad78af64fef98decbed8c6d4c70785ddae20e34b7903caee6226781ce6/monaco_dict_utils-0.1.0-py3-none-any.whl", hash = "sha256:b9ae55ba34c68e5396f2f7cdcb5d338832173230bc268d094d46a991ae2605c0", size = 7158, upload-time = "2025-07-16T21:12:15.182Z" },
 ]
 
 [[package]]

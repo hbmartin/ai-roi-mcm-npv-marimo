@@ -18,7 +18,7 @@ def setup_1():
     )
     from matplotlib.ticker import FuncFormatter
 
-    from monaco_utils import outvals_to_dict, sim_factory
+    from monaco_dict_utils import outvals_to_dict, sim_factory
     from npv_model import npv_model_factory
     from params_pert import pert_descriptions, pert_ranges, same_pert_ranges
 

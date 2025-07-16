@@ -30,7 +30,7 @@ docutils==0.21.2
     # via marimo
 et-xmlfile==2.0.0
     # via openpyxl
-fonttools==4.58.5
+fonttools==4.59.0
     # via matplotlib
 fsspec==2025.7.0
     # via dask
@@ -55,6 +55,10 @@ locket==1.0.0
 loro==1.5.2
     # via marimo
 marimo==0.14.11
+    # via
+    #   ai-npv (pyproject.toml)
+    #   marimo-scipy-utils
+marimo-scipy-utils==0.1.1
     # via ai-npv (pyproject.toml)
 markdown==3.8.2
     # via
@@ -65,8 +69,13 @@ markupsafe==3.0.2
 matplotlib==3.10.3
     # via
     #   ai-npv (pyproject.toml)
+    #   marimo-scipy-utils
     #   monaco
-monaco==0.15.1
+monaco==0.16.0
+    # via
+    #   ai-npv (pyproject.toml)
+    #   monaco-dict-utils
+monaco-dict-utils==0.1.0
     # via ai-npv (pyproject.toml)
 msgpack==1.1.1
     # via distributed
@@ -141,6 +150,7 @@ scipy==1.16.0
     # via
     #   ai-npv (pyproject.toml)
     #   beta-pert-dist-scipy
+    #   marimo-scipy-utils
     #   monaco
 six==1.17.0
     # via python-dateutil

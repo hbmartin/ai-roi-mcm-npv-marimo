@@ -2,6 +2,8 @@
 
 This project provides a comprehensive Monte Carlo simulation for analyzing the Net Present Value (NPV) of AI implementation initiatives. The analysis is built using Python with interactive controls and advanced statistical modeling.
 
+Built with [marimo-scipy-utils](https://github.com/hbmartin/marimo-scipy-utils), [monaco-dict-utils](https://github.com/hbmartin/monaco-dict-utils), and [beta-pert-dist-scipy](https://github.com/hbmartin/betapert)
+
 ## Setup Instructions
 
 ### Prerequisites
