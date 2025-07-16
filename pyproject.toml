@@ -7,14 +7,12 @@ requires-python = ">=3.13"
 dependencies = [
     "beta-pert-dist-scipy>=0.1.6",
     "marimo>=0.14.10",
-    "marimo-scipy-utils>=0.1.0",
-    "matplotlib>=3.10.3",
+    "marimo-scipy-utils>=0.1.2",
+    "matplotlib==3.8.4",
     "monaco>=0.15.1",
     "monaco-dict-utils>=0.1.0",
-    "numpy>=2.3.1",
-    "openpyxl>=3.1.5",
-    "pandas>=2.3.1",
-    "scipy>=1.16.0",
+    "numpy==2.2.5",
+    "scipy==1.14.1",
 ]
 
 [dependency-groups]

@@ -28,8 +28,6 @@ distributed==2024.8.0
     # via monaco
 docutils==0.21.2
     # via marimo
-et-xmlfile==2.0.0
-    # via openpyxl
 fonttools==4.59.0
     # via matplotlib
 fsspec==2025.7.0
@@ -58,7 +56,7 @@ marimo==0.14.11
     # via
     #   ai-npv (pyproject.toml)
     #   marimo-scipy-utils
-marimo-scipy-utils==0.1.1
+marimo-scipy-utils==0.1.2
     # via ai-npv (pyproject.toml)
 markdown==3.8.2
     # via
@@ -66,7 +64,7 @@ markdown==3.8.2
     #   pymdown-extensions
 markupsafe==3.0.2
     # via jinja2
-matplotlib==3.10.3
+matplotlib==3.8.4
     # via
     #   ai-npv (pyproject.toml)
     #   marimo-scipy-utils
@@ -83,16 +81,13 @@ mypy-extensions==1.1.0
     # via black
 narwhals==1.47.0
     # via marimo
-numpy==2.3.1
+numpy==2.2.5
     # via
     #   ai-npv (pyproject.toml)
     #   contourpy
     #   matplotlib
     #   monaco
-    #   pandas
     #   scipy
-openpyxl==3.1.5
-    # via ai-npv (pyproject.toml)
 packaging==25.0
     # via
     #   black
@@ -101,8 +96,6 @@ packaging==25.0
     #   marimo
     #   matplotlib
     #   pytest
-pandas==2.3.1
-    # via ai-npv (pyproject.toml)
 parso==0.8.4
     # via jedi
 partd==1.4.2
@@ -133,11 +126,7 @@ pyparsing==3.2.3
 pytest==8.4.1
     # via ai-npv (pyproject.toml:dev)
 python-dateutil==2.9.0.post0
-    # via
-    #   matplotlib
-    #   pandas
-pytz==2025.2
-    # via pandas
+    # via matplotlib
 pyyaml==6.0.2
     # via
     #   dask
@@ -146,7 +135,7 @@ pyyaml==6.0.2
     #   pymdown-extensions
 ruff==0.12.3
     # via ai-npv (pyproject.toml:dev)
-scipy==1.16.0
+scipy==1.14.1
     # via
     #   ai-npv (pyproject.toml)
     #   beta-pert-dist-scipy
@@ -175,8 +164,6 @@ tqdm==4.67.1
     # via monaco
 ty==0.0.1a14
     # via ai-npv (pyproject.toml:dev)
-tzdata==2025.2
-    # via pandas
 urllib3==2.5.0
     # via distributed
 uvicorn==0.35.0
