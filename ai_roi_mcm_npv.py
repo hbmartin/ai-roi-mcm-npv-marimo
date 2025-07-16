@@ -7,7 +7,7 @@ app = marimo.App()
 @app.cell
 def setup_1():
     import marimo as mo
-    import matplotlib.pyplot as plt
+    from matplotlib import pyplot as plt
     import numpy as np
     from betapert import pert
     from marimo_scipy_utils import (
@@ -16,14 +16,13 @@ def setup_1():
         generate_ranges,
         params_sliders,
     )
-    from matplotlib.ticker import FuncFormatter
+    from matplotlib import ticker
     from monaco_dict_utils import outvals_to_dict, sim_factory
 
     from npv_model import npv_model_factory
     from params_pert import pert_descriptions, pert_ranges, same_pert_ranges
 
     return (
-        FuncFormatter,
         abbrev_format,
         display_sliders,
         generate_ranges,
@@ -38,6 +37,7 @@ def setup_1():
         plt,
         same_pert_ranges,
         sim_factory,
+        ticker,
     )
 
 
@@ -578,7 +578,7 @@ def _(
 
 
 @app.cell
-def _(FuncFormatter, abbrev_format, mo, np, plt, results):
+def _(abbrev_format, mo, np, plt, results, ticker):
     _fig, _ax = plt.subplots(figsize=(10, 6))
 
     # NPV Distribution
@@ -599,7 +599,7 @@ def _(FuncFormatter, abbrev_format, mo, np, plt, results):
     _ax.set_title("First Year Net Benefits")
     _ax.set_xlabel("NPV ($)")
     _ax.set_ylabel("Frequency")
-    _ax.xaxis.set_major_formatter(FuncFormatter(abbrev_format))
+    _ax.xaxis.set_major_formatter(ticker.FuncFormatter(abbrev_format))
     _ax.legend()
     _ax.grid(visible=True, alpha=0.3)
 
@@ -624,7 +624,7 @@ def _(FuncFormatter, abbrev_format, mo, np, plt, results):
 
 
 @app.cell
-def plot_results(FuncFormatter, abbrev_format, mo, np, plt, results):
+def plot_results(abbrev_format, mo, np, plt, results, ticker):
     _fig, _ax = plt.subplots(figsize=(10, 6))
 
     # NPV Distribution
@@ -645,7 +645,7 @@ def plot_results(FuncFormatter, abbrev_format, mo, np, plt, results):
     _ax.set_title("3 Year ROI NPV Distribution")
     _ax.set_xlabel("NPV ($)")
     _ax.set_ylabel("Frequency")
-    _ax.xaxis.set_major_formatter(FuncFormatter(abbrev_format))
+    _ax.xaxis.set_major_formatter(ticker.FuncFormatter(abbrev_format))
     _ax.legend()
     _ax.grid(visible=True, alpha=0.3)
 
@@ -664,6 +664,11 @@ def plot_results(FuncFormatter, abbrev_format, mo, np, plt, results):
     """
 
     mo.vstack([mo.md("### 3 Year NPV ROI"), mo.as_html(_fig), mo.md(_results_text)])
+    return
+
+
+@app.cell
+def _():
     return
 
 
