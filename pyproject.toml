@@ -41,7 +41,7 @@ select = ["ALL"]
 ignore = ["D100", "D203", "D213"]
 
 [tool.ruff.lint.per-file-ignores]
-"ai_roi_mcm_npv.py" = ["ANN001", "ANN201", "ANN202", "D103", "E501", "F841", "N803", "PLC0415", "PLR0913", "W291"]
+"ai_roi_mcm_npv.py" = ["ANN001", "ANN201", "ANN202", "D103", "E501", "F841", "N803", "PLC0415", "PLR0913", "PLR1711", "W291"]
 "**/exceptions.py" = ["ANN204", "D107", "E501"]
 "npv_model.py" = ["D103"]
 "params_pert.py" = ["D103"]

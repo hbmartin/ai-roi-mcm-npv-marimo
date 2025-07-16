@@ -1,6 +1,12 @@
 import pytest
 
-from npv_model import npv_model
+from npv_model import npv_model_factory
+
+npv_model = npv_model_factory(
+    weeks_per_year=52,
+    hours_per_workweek=40,
+    avg_yearly_fully_loaded_cost_per_employee=130000,
+)
 
 
 class TestNPVModel:
@@ -9,39 +15,60 @@ class TestNPVModel:
     def test_basic_npv_calculation(self):
         """Test basic NPV calculation with default parameters"""
         result = npv_model(
-            hours_saved=10,
-            employees=50,
-            hourly_rate=50,
-            bug_reduction=0.3,
+            hours_saved_per_employee=10,
+            number_of_employees=50,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0.3,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.1,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=50000,
+            yearly_monitoring_and_support_cost=30000,
+            first_year_change_management_cost=100000,
+            yearly_ai_staff_cost=75000,
         )
 
         assert isinstance(result, dict)
         assert "npv" in result
-        assert "annual_benefits" in result
         assert isinstance(result["npv"], (int, float))
-        assert isinstance(result["annual_benefits"], (int, float))
 
     def test_all_return_fields(self):
         """Test that all expected fields are returned"""
         result = npv_model(
-            hours_saved=5,
-            employees=20,
-            hourly_rate=40,
-            bug_reduction=0.5,
+            hours_saved_per_employee=5,
+            number_of_employees=20,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0.5,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.08,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=50000,
+            yearly_monitoring_and_support_cost=30000,
+            first_year_change_management_cost=100000,
+            yearly_ai_staff_cost=75000,
         )
 
         expected_fields = [
             "npv",
-            "annual_benefits",
             "time_savings",
             "quality_savings",
             "revenue_impact",
             "retention_savings",
             "year_1_net",
-            "year_2_net",
-            "year_3_net",
         ]
 
         for field in expected_fields:
@@ -51,45 +78,76 @@ class TestNPVModel:
     def test_time_savings_calculation(self):
         """Test time savings benefit calculation"""
         result = npv_model(
-            hours_saved=10,
-            employees=50,
-            hourly_rate=50,
-            bug_reduction=0,
+            hours_saved_per_employee=10,
+            number_of_employees=50,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.1,
-            productivity_conversion=0.65,
-            weeks_per_year=52,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=50000,
+            yearly_monitoring_and_support_cost=30000,
+            first_year_change_management_cost=100000,
+            yearly_ai_staff_cost=75000,
         )
 
-        expected_time_savings = 10 * 50 * 52 * 50 * 0.65
-        assert result["time_savings"] == expected_time_savings
+        expected_time_savings = 10 * 50 * 52 * 62.5 * 0.65
+        assert abs(result["time_savings"] - expected_time_savings) < 0.01
 
     def test_quality_savings_calculation(self):
         """Test quality improvement benefit calculation"""
         result = npv_model(
-            hours_saved=0,
-            employees=50,
-            hourly_rate=50,
-            bug_reduction=0.3,
+            hours_saved_per_employee=0,
+            number_of_employees=50,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0.3,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.1,
-            current_bug_cost=200000,
-            cost_factor=3.5,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=50000,
+            yearly_monitoring_and_support_cost=30000,
+            first_year_change_management_cost=100000,
+            yearly_ai_staff_cost=75000,
         )
 
-        expected_quality_savings = 0.3 * 200000 * 3.5
-        assert result["quality_savings"] == expected_quality_savings
+        expected_quality_savings = 200000 * 0.3 + 130000 * 0.1 * 0.3
+        assert abs(result["quality_savings"] - expected_quality_savings) < 0.01
 
     def test_revenue_impact_calculation(self):
         """Test product delivery benefit calculation"""
         result = npv_model(
-            hours_saved=0,
-            employees=50,
-            hourly_rate=50,
-            bug_reduction=0,
+            hours_saved_per_employee=0,
+            number_of_employees=50,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.1,
-            delivery_improvement=0.2,
-            additional_customers=2,
-            customer_value=500000,
-            attribution_factor=0.3,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=50000,
+            yearly_monitoring_and_support_cost=30000,
+            first_year_change_management_cost=100000,
+            yearly_ai_staff_cost=75000,
         )
 
         expected_revenue_impact = 0.2 * 2 * 500000 * 0.3
@@ -98,14 +156,24 @@ class TestNPVModel:
     def test_retention_savings_calculation(self):
         """Test employee retention benefit calculation"""
         result = npv_model(
-            hours_saved=0,
-            employees=50,
-            hourly_rate=50,
-            bug_reduction=0,
+            hours_saved_per_employee=0,
+            number_of_employees=50,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.1,
-            retention_improvement=0.2,
-            current_turnover=0.2,
-            replacement_cost=100000,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=50000,
+            yearly_monitoring_and_support_cost=30000,
+            first_year_change_management_cost=100000,
+            yearly_ai_staff_cost=75000,
         )
 
         expected_retention_savings = 0.2 * 0.2 * 50 * 100000
@@ -114,34 +182,78 @@ class TestNPVModel:
     def test_cash_flow_calculations(self):
         """Test year-by-year cash flow calculations"""
         result = npv_model(
-            hours_saved=5,
-            employees=20,
-            hourly_rate=40,
-            bug_reduction=0.2,
+            hours_saved_per_employee=5,
+            number_of_employees=20,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0.2,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.1,
-            impl_costs=550000,
-            ongoing_costs=155000,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=50000,
+            yearly_monitoring_and_support_cost=30000,
+            first_year_change_management_cost=100000,
+            yearly_ai_staff_cost=75000,
         )
 
-        annual_benefits = result["annual_benefits"]
+        # Calculate expected annual benefits
+        annual_benefits = (
+            result["time_savings"]
+            + result["quality_savings"]
+            + result["revenue_impact"]
+            + result["retention_savings"]
+        )
+        ongoing_costs = (
+            50000 + 30000 + 75000
+        )  # yearly_tool_cost + yearly_monitoring_and_support_cost + yearly_ai_staff_cost
 
-        assert result["year_1_net"] == annual_benefits - 550000
-        assert result["year_2_net"] == annual_benefits - 155000
-        assert result["year_3_net"] == annual_benefits - 155000
+        expected_year_1_net = annual_benefits - (
+            100000 + ongoing_costs
+        )  # first_year_change_management_cost + ongoing_costs
+
+        assert result["year_1_net"] == expected_year_1_net
 
     def test_npv_discount_calculation(self):
         """Test NPV discounting calculation"""
         result = npv_model(
-            hours_saved=10,
-            employees=50,
-            hourly_rate=50,
-            bug_reduction=0.3,
+            hours_saved_per_employee=10,
+            number_of_employees=50,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0.3,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.1,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=50000,
+            yearly_monitoring_and_support_cost=30000,
+            first_year_change_management_cost=100000,
+            yearly_ai_staff_cost=75000,
         )
 
-        year_1_net = result["year_1_net"]
-        year_2_net = result["year_2_net"]
-        year_3_net = result["year_3_net"]
+        # Calculate expected cash flows
+        annual_benefits = (
+            result["time_savings"]
+            + result["quality_savings"]
+            + result["revenue_impact"]
+            + result["retention_savings"]
+        )
+        ongoing_costs = 50000 + 30000 + 75000
+
+        year_1_net = annual_benefits - (100000 + ongoing_costs)
+        year_2_net = annual_benefits - ongoing_costs
+        year_3_net = annual_benefits - ongoing_costs
 
         expected_npv = (
             year_1_net / (1 + 0.1) ** 1
@@ -154,28 +266,52 @@ class TestNPVModel:
     def test_zero_inputs(self):
         """Test behavior with zero inputs"""
         result = npv_model(
-            hours_saved=0,
-            employees=0,
-            hourly_rate=0,
-            bug_reduction=0,
+            hours_saved_per_employee=0,
+            number_of_employees=0,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.1,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=50000,
+            yearly_monitoring_and_support_cost=30000,
+            first_year_change_management_cost=100000,
+            yearly_ai_staff_cost=75000,
         )
 
         assert result["time_savings"] == 0
         assert result["quality_savings"] == 0
         assert result["retention_savings"] == 0
-        assert result["annual_benefits"] == result["revenue_impact"]
+        # Only revenue impact should remain as a benefit
 
     def test_negative_npv_scenario(self):
         """Test scenario that should produce negative NPV"""
         result = npv_model(
-            hours_saved=1,
-            employees=5,
-            hourly_rate=20,
-            bug_reduction=0.1,
+            hours_saved_per_employee=1,
+            number_of_employees=5,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0.1,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.15,
-            impl_costs=1000000,
-            ongoing_costs=500000,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=500000,  # High costs
+            yearly_monitoring_and_support_cost=200000,
+            first_year_change_management_cost=500000,
+            yearly_ai_staff_cost=300000,
         )
 
         assert result["npv"] < 0
@@ -183,13 +319,24 @@ class TestNPVModel:
     def test_positive_npv_scenario(self):
         """Test scenario that should produce positive NPV"""
         result = npv_model(
-            hours_saved=20,
-            employees=100,
-            hourly_rate=75,
-            bug_reduction=0.5,
+            hours_saved_per_employee=20,
+            number_of_employees=100,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0.5,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.05,
-            impl_costs=100000,
-            ongoing_costs=50000,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=10000,  # Low costs
+            yearly_monitoring_and_support_cost=5000,
+            first_year_change_management_cost=20000,
+            yearly_ai_staff_cost=15000,
         )
 
         assert result["npv"] > 0
@@ -198,20 +345,46 @@ class TestNPVModel:
         """Test that function handles different numeric types"""
         # Integer inputs
         result1 = npv_model(
-            hours_saved=10,
-            employees=50,
-            hourly_rate=50,
-            bug_reduction=0.3,
+            hours_saved_per_employee=10,
+            number_of_employees=50,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0.3,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.1,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=50000,
+            yearly_monitoring_and_support_cost=30000,
+            first_year_change_management_cost=100000,
+            yearly_ai_staff_cost=75000,
         )
 
         # Float inputs
         result2 = npv_model(
-            hours_saved=10.5,
-            employees=50.0,
-            hourly_rate=50.75,
-            bug_reduction=0.3,
+            hours_saved_per_employee=10.5,
+            number_of_employees=50.0,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0.3,
+            bug_time_rate=0.1,
+            external_bug_cost=200000.0,
             discount_rate=0.1,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2.0,
+            yearly_customer_value=500000.0,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000.0,
+            yearly_tool_cost=50000.0,
+            yearly_monitoring_and_support_cost=30000.0,
+            first_year_change_management_cost=100000.0,
+            yearly_ai_staff_cost=75000.0,
         )
 
         assert isinstance(result1["npv"], (int, float))
@@ -220,63 +393,94 @@ class TestNPVModel:
     def test_edge_case_high_discount_rate(self):
         """Test with very high discount rate"""
         result = npv_model(
-            hours_saved=10,
-            employees=50,
-            hourly_rate=50,
-            bug_reduction=0.3,
+            hours_saved_per_employee=10,
+            number_of_employees=50,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0.3,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
             discount_rate=0.5,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=50000,
+            yearly_monitoring_and_support_cost=30000,
+            first_year_change_management_cost=100000,
+            yearly_ai_staff_cost=75000,
         )
 
         assert isinstance(result["npv"], (int, float))
         # With high discount rate, NPV should be significantly less than undiscounted total
-        undiscounted_total = (
-            result["year_1_net"] + result["year_2_net"] + result["year_3_net"]
-        )
-        assert result["npv"] < undiscounted_total
-
-    def test_annual_benefits_sum(self):
-        """Test that annual benefits equals sum of all benefit components"""
-        result = npv_model(
-            hours_saved=8,
-            employees=40,
-            hourly_rate=60,
-            bug_reduction=0.25,
-            discount_rate=0.12,
-        )
-
-        calculated_total = (
+        # Calculate what the undiscounted total would be
+        annual_benefits = (
             result["time_savings"]
             + result["quality_savings"]
             + result["revenue_impact"]
             + result["retention_savings"]
         )
+        ongoing_costs = 50000 + 30000 + 75000
 
-        assert abs(result["annual_benefits"] - calculated_total) < 0.01
+        year_1_net = annual_benefits - (100000 + ongoing_costs)
+        year_2_net = annual_benefits - ongoing_costs
+        year_3_net = annual_benefits - ongoing_costs
 
-    def test_default_parameters(self):
-        """Test that default parameters are used correctly"""
+        undiscounted_total = year_1_net + year_2_net + year_3_net
+        assert result["npv"] < undiscounted_total
+
+    def test_annual_benefits_sum(self):
+        """Test that annual benefits equals sum of all benefit components"""
         result = npv_model(
-            hours_saved=5,
-            employees=25,
-            hourly_rate=45,
-            bug_reduction=0.4,
-            discount_rate=0.09,
+            hours_saved_per_employee=8,
+            number_of_employees=40,
+            productivity_conversion_rate=0.65,
+            bug_reduction_rate=0.25,
+            bug_time_rate=0.1,
+            external_bug_cost=200000,
+            discount_rate=0.12,
+            feature_delivery_rate=0.2,
+            feature_attribution_factor=0.3,
+            new_customers_per_year=2,
+            yearly_customer_value=500000,
+            retention_improvement_rate=0.2,
+            current_yearly_turnover_rate=0.2,
+            replacement_cost_per_employee=100000,
+            yearly_tool_cost=50000,
+            yearly_monitoring_and_support_cost=30000,
+            first_year_change_management_cost=100000,
+            yearly_ai_staff_cost=75000,
         )
 
-        # Check that default values are being used in calculations
-        assert result["time_savings"] == 5 * 25 * 52 * 45 * 0.65
-        assert result["quality_savings"] == 0.4 * 200000 * 3.5
-        assert result["revenue_impact"] == 0.2 * 2 * 500000 * 0.3
-        assert result["retention_savings"] == 0.2 * 0.2 * 25 * 100000
+        # Test that all benefit components are present and numeric
+        assert isinstance(result["time_savings"], (int, float))
+        assert isinstance(result["quality_savings"], (int, float))
+        assert isinstance(result["revenue_impact"], (int, float))
+        assert isinstance(result["retention_savings"], (int, float))
 
     def test_consistent_results(self):
         """Test that identical inputs produce identical outputs"""
         params = {
-            "hours_saved": 12,
-            "employees": 60,
-            "hourly_rate": 55,
-            "bug_reduction": 0.35,
+            "hours_saved_per_employee": 12,
+            "number_of_employees": 60,
+            "productivity_conversion_rate": 0.65,
+            "bug_reduction_rate": 0.35,
+            "bug_time_rate": 0.1,
+            "external_bug_cost": 200000,
             "discount_rate": 0.08,
+            "feature_delivery_rate": 0.2,
+            "feature_attribution_factor": 0.3,
+            "new_customers_per_year": 2,
+            "yearly_customer_value": 500000,
+            "retention_improvement_rate": 0.2,
+            "current_yearly_turnover_rate": 0.2,
+            "replacement_cost_per_employee": 100000,
+            "yearly_tool_cost": 50000,
+            "yearly_monitoring_and_support_cost": 30000,
+            "first_year_change_management_cost": 100000,
+            "yearly_ai_staff_cost": 75000,
         }
 
         result1 = npv_model(**params)

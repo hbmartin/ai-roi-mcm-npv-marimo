@@ -10,14 +10,14 @@ def setup_1():
     import matplotlib.pyplot as plt
     import numpy as np
     from betapert import pert
-    from matplotlib.ticker import FuncFormatter
-
     from marimo_scipy_utils import (
         abbrev_format,
         display_sliders,
         generate_ranges,
         params_sliders,
     )
+    from matplotlib.ticker import FuncFormatter
+
     from monaco_utils import outvals_to_dict, sim_factory
     from npv_model import npv_model_factory
     from params_pert import pert_descriptions, pert_ranges, same_pert_ranges
