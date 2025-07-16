@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.14.10"
+__generated_with = "0.14.11"
 app = marimo.App()
 
 
@@ -12,7 +12,7 @@ def setup_1():
     from betapert import pert
     from matplotlib.ticker import FuncFormatter
 
-    from marimo_utils import (
+    from marimo_scipy_utils import (
         abbrev_format,
         display_sliders,
         generate_ranges,
@@ -53,6 +53,7 @@ def _(mo):
     - Work week is set at 40 hours
     """,
     )
+    return
 
 
 @app.cell
@@ -71,11 +72,13 @@ def _(generate_ranges):
         "triang",
         {"loc": {"lower": 0, "upper": 10}, "scale": {"upper": 5}},
     )
+    return
 
 
 @app.cell
 def _(mo):
     mo.md(r"""## 1. Time Savings Benefits (Internal Productivity / Doing More)""")
+    return
 
 
 @app.cell
@@ -94,6 +97,7 @@ def _(display_sliders, hspe, invars, pert, pert_descriptions):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -110,6 +114,7 @@ def _(mo):
 @app.cell
 def _(display_sliders, invars, no_employees):
     display_sliders("Number of Employees", no_employees, invars)
+    return
 
 
 @app.cell
@@ -130,6 +135,7 @@ def _(aycpe, display_sliders, factory_vars):
         aycpe,
         factory_vars,
     )
+    return
 
 
 @app.cell
@@ -147,6 +153,7 @@ def _(display_sliders, invars, pert, pert_descriptions, prodconv):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -154,11 +161,13 @@ def _(mo):
     mo.md(
         r"""Productivity conversion is the rate at which saved time is re-deployed as work""",
     )
+    return
 
 
 @app.cell
 def _(mo):
     mo.md(r"""## 2. Quality Improvement Benefits (Preventing post-release bugs)""")
+    return
 
 
 @app.cell
@@ -176,6 +185,7 @@ def _(bug_reduction, display_sliders, invars, pert, pert_descriptions):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -193,6 +203,7 @@ def _(bug_time, display_sliders, invars, pert, pert_descriptions):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -200,6 +211,7 @@ def _(mo):
     mo.md(
         r"""Bug time rate is the fraction of employee time lost to remediating issues including internal issue management, process disruption, staff burnout, and customer support.""",
     )
+    return
 
 
 @app.cell
@@ -219,6 +231,7 @@ def _(display_sliders, ext_bug_cost, invars, pert, pert_descriptions):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -231,11 +244,13 @@ def _(mo):
     - However, this also includes a risk adjusted cost of a catastraphic bug i.e. one that severly impacts ability to acquire new customers. (e.g. a bug costing $1m/yr at a 1%/yr risk = $10k)
     """,
     )
+    return
 
 
 @app.cell
 def _(mo):
     mo.md(r"""## 3. Product Delivery Benefits (External)""")
+    return
 
 
 @app.cell
@@ -253,6 +268,7 @@ def _(display_sliders, feat_rate, invars, pert, pert_descriptions):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -270,6 +286,7 @@ def _(display_sliders, feat_attr_rate, invars, pert, pert_descriptions):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -281,6 +298,7 @@ def _(mo):
     This is currently set very low based on the expectation that customer renewal/acquisition is not substantially correlated to new features.
     """,
     )
+    return
 
 
 @app.cell
@@ -298,6 +316,7 @@ def _(display_sliders, invars, new_cust, pert, pert_descriptions):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -317,11 +336,13 @@ def _(cust_value, display_sliders, invars, pert, pert_descriptions):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
 def _(mo):
     mo.md(r"""## 3. Employee Retention Benefits""")
+    return
 
 
 @app.cell
@@ -339,6 +360,7 @@ def _(display_sliders, invars, pert, pert_descriptions, ret_imrpov_rate):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -355,6 +377,7 @@ def _(mo):
 @app.cell
 def _(display_sliders, invars, turnover_rate):
     display_sliders("Current Yearly Turnover Rate", turnover_rate, invars)
+    return
 
 
 @app.cell
@@ -374,6 +397,7 @@ def _(display_sliders, invars, pert, pert_descriptions, replacement_cost):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -381,11 +405,13 @@ def _(mo):
     mo.md(
         r"""Replacement cost includes recruiting, interviewing, onboarding, and lost productivity.""",
     )
+    return
 
 
 @app.cell
 def _(mo):
     mo.md(r"""## AI Implementation Costs""")
+    return
 
 
 @app.cell
@@ -405,6 +431,7 @@ def _(display_sliders, invars, pert, pert_descriptions, yts):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -424,6 +451,7 @@ def _(display_sliders, invars, monitoring, pert, pert_descriptions):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -443,6 +471,7 @@ def _(display_sliders, invars, pert, pert_descriptions, tcm):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -465,6 +494,7 @@ def _(ai_staff, display_sliders, invars, pert, pert_descriptions):
         dist=pert,
         descriptions=pert_descriptions,
     )
+    return
 
 
 @app.cell
@@ -516,6 +546,7 @@ def _(discount_slider_display, get_message, mo, run_button):
             mo.md(get_message()),
         ],
     )
+    return
 
 
 @app.cell
@@ -589,6 +620,7 @@ def _(FuncFormatter, abbrev_format, mo, np, plt, results):
     mo.vstack(
         [mo.md("### Results\n#### Year 1 ROI"), mo.as_html(_fig), mo.md(_results_text)],
     )
+    return
 
 
 @app.cell
@@ -632,6 +664,7 @@ def plot_results(FuncFormatter, abbrev_format, mo, np, plt, results):
     """
 
     mo.vstack([mo.md("### 3 Year NPV ROI"), mo.as_html(_fig), mo.md(_results_text)])
+    return
 
 
 if __name__ == "__main__":

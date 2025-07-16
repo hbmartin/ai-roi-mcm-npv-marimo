@@ -29,7 +29,7 @@ This project provides a comprehensive Monte Carlo simulation for analyzing the N
    marimo edit ai_roi_mcm_npv.py
    ```
 
-The interactive analysis will open in your web browser.
+The interactive analysis will open in your web browser. Adjust the parameter sliders to see how different assumptions affect the NPV distribution and risk profile.
 
 ## Key Features
 
@@ -59,34 +59,4 @@ The interactive analysis will open in your web browser.
 - **Risk Analysis**: 
   - Probability of positive NPV calculation
   - 90% confidence intervals
-  - Comprehensive percentile analysis (5th, 10th, 25th, 50th, 75th, 90th, 95th)
   - Visual risk assessment tools
-
-## Probability Distributions Used
-
-The simulation incorporates realistic uncertainty modeling through various probability distributions:
-
-- **Triangular Distribution**: 
-  - Hours saved per employee (asymmetric uncertainty with most likely value)
-  - Current bug costs (business estimates with skewed uncertainty)
-
-- **Normal Distribution**: 
-  - Hourly rates (symmetric uncertainty around market rates)
-
-- **Beta Distribution**: 
-  - Bug reduction effectiveness (bounded percentage with realistic shape)
-  - Delivery improvement percentages (constrained business impact factors)
-  - Employee retention improvements (realistic HR impact modeling)
-
-- **Uniform Distribution**: 
-  - Discount rates (range of acceptable cost of capital)
-  - Productivity conversion factors (operational efficiency uncertainty)
-
-## Usage
-
-Run the interactive analysis:
-```bash
-python ai_roi_mcm_npv.py
-```
-
-Adjust the parameter sliders to see how different assumptions affect the NPV distribution and risk profile in real-time.

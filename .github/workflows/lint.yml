@@ -14,11 +14,6 @@ jobs:
         cache-dependency-path: requirements.txt
         allow-prereleases: true
     - run: pip install -r requirements.txt
-    - uses: psf/black@stable
-      with:
-        options: "--check --verbose"
-    - name: Run type checks
-      run: |
-        ty --version
-        ty check .
+    - run: black . --check --verbose
+    - run: ty check .  --python "$pythonLocation"
     - run: ruff check .

@@ -5,8 +5,9 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "betapert>=0.1.5",
+    "beta-pert-dist-scipy>=0.1.6",
     "marimo>=0.14.10",
+    "marimo-scipy-utils>=0.1.0",
     "matplotlib>=3.10.3",
     "monaco>=0.15.1",
     "numpy>=2.3.1",
