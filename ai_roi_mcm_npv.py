@@ -1,3 +1,15 @@
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "beta-pert-dist-scipy==0.1.6",
+#     "marimo",
+#     "marimo-scipy-utils==0.1.2",
+#     "numpy==2.3.1",
+# ]
+# [tool.uv.sources]
+# npv-model = { path = ".", editable = true }
+# ///
+
 import marimo
 
 __generated_with = "0.14.11"
@@ -5,9 +17,17 @@ app = marimo.App()
 
 
 @app.cell
+async def _():
+    import micropip
+    await micropip.install("monaco-dict-utils", deps=False)
+    return
+
+
+@app.cell
 def setup_1():
     import marimo as mo
-    import matplotlib.pyplot as plt
+
+    from matplotlib import pyplot as plt
     import numpy as np
     from betapert import pert
     from marimo_scipy_utils import (
@@ -16,29 +36,201 @@ def setup_1():
         generate_ranges,
         params_sliders,
     )
-    from matplotlib.ticker import FuncFormatter
+    from matplotlib import ticker
     from monaco_dict_utils import outvals_to_dict, sim_factory
 
-    from npv_model import npv_model_factory
-    from params_pert import pert_descriptions, pert_ranges, same_pert_ranges
+    # from npv_model import npv_model_factory
+    # from params_pert import pert_descriptions, pert_ranges, same_pert_ranges
 
     return (
-        FuncFormatter,
         abbrev_format,
         display_sliders,
         generate_ranges,
         mo,
         np,
-        npv_model_factory,
         outvals_to_dict,
         params_sliders,
         pert,
-        pert_descriptions,
-        pert_ranges,
         plt,
-        same_pert_ranges,
         sim_factory,
+        ticker,
     )
+
+
+@app.cell
+def _():
+    pert_descriptions = {
+        "mini": "Min",
+        "mode": "Mode",
+        "maxi": "Max",
+    }
+
+
+    def same_pert_ranges(  # noqa: PLR0913
+        mini: float,
+        mini_value: float,
+        value: float,
+        maxi_value: float,
+        maxi: float,
+        step: float,
+    ) -> dict[str, dict[str, float | int]]:
+        return {
+            "mini": {
+                "lower": mini,
+                "upper": maxi,
+                "value": mini_value,
+                "step": step,
+            },
+            "mode": {
+                "lower": mini,
+                "upper": maxi,
+                "value": value,
+                "step": step,
+            },
+            "maxi": {
+                "lower": mini,
+                "upper": maxi,
+                "value": maxi_value,
+                "step": step,
+            },
+        }
+
+
+    def pert_ranges(  # noqa: PLR0913
+        mini_min: float,
+        mini_value: float,
+        mini_max: float,
+        mode_min: float,
+        mode_value: float,
+        mode_max: float,
+        maxi_min: float,
+        maxi_value: float,
+        maxi_max: float,
+        step: float,
+    ) -> dict[str, dict[str, float | int]]:
+        return {
+            "mini": {
+                "lower": mini_min,
+                "upper": mini_max,
+                "value": mini_value,
+                "step": step,
+            },
+            "mode": {
+                "lower": mode_min,
+                "upper": mode_max,
+                "value": mode_value,
+                "step": step,
+            },
+            "maxi": {
+                "lower": maxi_min,
+                "upper": maxi_max,
+                "value": maxi_value,
+                "step": step,
+            },
+        }
+
+
+    def npv_model_factory(
+        weeks_per_year: float,
+        hours_per_workweek: float,
+        avg_yearly_fully_loaded_cost_per_employee: float,
+    ):
+        hours_per_year = weeks_per_year * hours_per_workweek
+        hourly_rate = avg_yearly_fully_loaded_cost_per_employee / hours_per_year
+
+        def npv_model(  # noqa: PLR0913
+            hours_saved_per_employee: float,
+            number_of_employees: float,
+            productivity_conversion_rate: float,
+            bug_reduction_rate: float,
+            bug_time_rate: float,
+            external_bug_cost: float,
+            discount_rate: float,
+            feature_delivery_rate: float,
+            feature_attribution_factor: float,
+            new_customers_per_year: float,
+            yearly_customer_value: float,
+            retention_improvement_rate: float,
+            current_yearly_turnover_rate: float,
+            replacement_cost_per_employee: float,
+            yearly_tool_cost: float,
+            yearly_monitoring_and_support_cost: float,
+            first_year_change_management_cost: float,
+            yearly_ai_staff_cost: float,
+        ) -> dict:
+            # Benefits Calculations
+            # 1. Time Savings Benefits
+
+            annual_time_savings = (
+                hours_saved_per_employee
+                * number_of_employees
+                * weeks_per_year
+                * hourly_rate
+                * productivity_conversion_rate
+            )
+
+            # 2. Quality Improvement Benefits
+            external_bug_saving = external_bug_cost * bug_reduction_rate
+            internal_bug_saving = (
+                avg_yearly_fully_loaded_cost_per_employee
+                * bug_time_rate
+                * bug_reduction_rate
+            )
+            annual_quality_savings = external_bug_saving + internal_bug_saving
+
+            # 3. Product Delivery Benefits
+            annual_revenue_impact = (
+                feature_delivery_rate
+                * new_customers_per_year
+                * yearly_customer_value
+                * feature_attribution_factor
+            )
+
+            # 4. Employee Retention Benefits
+            annual_retention_savings = (
+                retention_improvement_rate
+                * current_yearly_turnover_rate
+                * number_of_employees
+                * replacement_cost_per_employee
+            )
+
+            # Total Annual Benefits
+            total_annual_benefits = (
+                annual_time_savings
+                + annual_quality_savings
+                + annual_revenue_impact
+                + annual_retention_savings
+            )
+
+            ongoing_costs = (
+                yearly_tool_cost + yearly_monitoring_and_support_cost + yearly_ai_staff_cost
+            )
+
+            # Cash Flows
+            year_1_net_flow = total_annual_benefits - (
+                first_year_change_management_cost + ongoing_costs
+            )
+            year_2_net_flow = total_annual_benefits - ongoing_costs
+            year_3_net_flow = total_annual_benefits - ongoing_costs
+
+            # NPV Calculation
+            npv = (
+                year_1_net_flow / (1 + discount_rate) ** 1
+                + year_2_net_flow / (1 + discount_rate) ** 2
+                + year_3_net_flow / (1 + discount_rate) ** 3
+            )
+
+            return {
+                "npv": npv,
+                "time_savings": annual_time_savings,
+                "quality_savings": annual_quality_savings,
+                "revenue_impact": annual_revenue_impact,
+                "retention_savings": annual_retention_savings,
+                "year_1_net": year_1_net_flow,
+            }
+
+        return npv_model
+    return npv_model_factory, pert_descriptions, pert_ranges, same_pert_ranges
 
 
 @app.cell
@@ -578,7 +770,7 @@ def _(
 
 
 @app.cell
-def _(FuncFormatter, abbrev_format, mo, np, plt, results):
+def _(abbrev_format, mo, np, plt, results, ticker):
     _fig, _ax = plt.subplots(figsize=(10, 6))
 
     # NPV Distribution
@@ -599,7 +791,7 @@ def _(FuncFormatter, abbrev_format, mo, np, plt, results):
     _ax.set_title("First Year Net Benefits")
     _ax.set_xlabel("NPV ($)")
     _ax.set_ylabel("Frequency")
-    _ax.xaxis.set_major_formatter(FuncFormatter(abbrev_format))
+    _ax.xaxis.set_major_formatter(ticker.FuncFormatter(abbrev_format))
     _ax.legend()
     _ax.grid(visible=True, alpha=0.3)
 
@@ -624,7 +816,7 @@ def _(FuncFormatter, abbrev_format, mo, np, plt, results):
 
 
 @app.cell
-def plot_results(FuncFormatter, abbrev_format, mo, np, plt, results):
+def plot_results(abbrev_format, mo, np, plt, results, ticker):
     _fig, _ax = plt.subplots(figsize=(10, 6))
 
     # NPV Distribution
@@ -645,7 +837,7 @@ def plot_results(FuncFormatter, abbrev_format, mo, np, plt, results):
     _ax.set_title("3 Year ROI NPV Distribution")
     _ax.set_xlabel("NPV ($)")
     _ax.set_ylabel("Frequency")
-    _ax.xaxis.set_major_formatter(FuncFormatter(abbrev_format))
+    _ax.xaxis.set_major_formatter(ticker.FuncFormatter(abbrev_format))
     _ax.legend()
     _ax.grid(visible=True, alpha=0.3)
 
@@ -664,6 +856,11 @@ def plot_results(FuncFormatter, abbrev_format, mo, np, plt, results):
     """
 
     mo.vstack([mo.md("### 3 Year NPV ROI"), mo.as_html(_fig), mo.md(_results_text)])
+    return
+
+
+@app.cell
+def _():
     return
 
 
