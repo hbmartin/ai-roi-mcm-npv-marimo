@@ -1,9 +1,16 @@
-from typing import Callable
+from collections.abc import Callable
+
 import marimo as mo
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
-from scipy.stats import uniform, triang, beta, norm
 import numpy as np
+from matplotlib.ticker import FuncFormatter
+from scipy.stats import beta, norm, triang, uniform
+
+from .exceptions import (
+    DistributionConfigurationError,
+    MissingParameterError,
+    ParameterBoundError,
+)
 
 # Dictionary mapping distribution keys to scipy callables
 SCIPY_DISTRIBUTIONS: dict[str, Callable] = {
@@ -78,7 +85,7 @@ _distributions = {
 }
 
 
-def _deep_merge(result, dict2):
+def _deep_merge(result: dict, dict2: dict) -> dict:
     for key, value in dict2.items():
         if key in result and isinstance(result[key], dict) and isinstance(value, dict):
             result[key] = _deep_merge(result[key], value)
@@ -88,6 +95,26 @@ def _deep_merge(result, dict2):
 
 
 def generate_ranges(distribution: str, ranged_distkwargs: dict) -> dict:
+    """Generate parameter ranges for a probability distribution.
+
+    Takes a distribution name and dictionary of parameter ranges, validates the ranges
+    against allowed bounds for that distribution, and returns a merged dictionary with
+    complete range specifications.
+
+    Args:
+        distribution (str): Name of the probability distribution (e.g. "normal", "beta")
+        ranged_distkwargs (dict): Dictionary mapping parameter names to their range
+            specifications. Each range spec should have "lower" and "upper" bounds.
+
+    Returns:
+        dict: Complete parameter range specifications with distribution defaults merged
+            with provided ranges
+
+    Raises:
+        MissingParameterError: If a required parameter range is not provided
+        ParameterBoundError: If a provided range exceeds the allowed bounds for a param
+
+    """
     ranged_copy = _distributions[distribution].copy()
 
     for p_name, ranges in ranged_copy.items():
@@ -96,10 +123,8 @@ def generate_ranges(distribution: str, ranged_distkwargs: dict) -> dict:
             and not ranges["lower"]
             and not ranges["upper"]
         ):
-            raise ValueError(
-                f"Missing required parameter: {p_name}, must set any `None`s in {ranged_copy[p_name]}"
-            )
-        elif p_name not in ranged_distkwargs:
+            raise MissingParameterError(p_name, ranges)
+        if p_name not in ranged_distkwargs:
             continue
 
         if (
@@ -107,36 +132,64 @@ def generate_ranges(distribution: str, ranged_distkwargs: dict) -> dict:
             and ranges["lower"] is not None
             and ranged_distkwargs[p_name]["lower"] < ranges["lower"]
         ):
-            raise ValueError(
-                f"{p_name}: given lower bound {ranged_distkwargs[p_name]['lower']} is less than allowed: {ranges['lower']}"
+            raise ParameterBoundError(
+                p_name,
+                ranged_distkwargs[p_name]["lower"],
+                ranges["lower"],
+                "lower",
             )
-        elif "lower" not in ranged_distkwargs[p_name] and ranges["lower"] is None:
-            raise ValueError(f"{p_name}: lower bound is not provided")
+        if "lower" not in ranged_distkwargs[p_name] and ranges["lower"] is None:
+            raise MissingParameterError(p_name)
 
         if (
             "upper" in ranged_distkwargs[p_name]
             and ranges["upper"] is not None
             and ranged_distkwargs[p_name]["upper"] > ranges["upper"]
         ):
-            raise ValueError(
-                f"{p_name}: given upper bound {ranged_distkwargs[p_name]['upper']} is greater than allowed: {ranges['upper']}"
+            raise ParameterBoundError(
+                p_name,
+                ranged_distkwargs[p_name]["upper"],
+                ranges["upper"],
+                "upper",
             )
-        elif "upper" not in ranged_distkwargs[p_name] and ranges["upper"] is None:
-            raise ValueError(f"{p_name}: upper bound is not provided")
+        if "upper" not in ranged_distkwargs[p_name] and ranges["upper"] is None:
+            raise MissingParameterError(p_name)
 
     return _deep_merge(ranged_copy, ranged_distkwargs)
 
 
 def params_sliders(
     ranged_distkwargs: dict,
-):
+) -> mo.ui.dictionary:
+    """Create a dictionary of sliders for parameter ranges.
 
-    params = mo.ui.dictionary(
+    Takes a dictionary of param ranges and creates interactive sliders for each param.
+    The sliders will be bounded by the lower/upper values specified in the ranges dict.
+    The step size and initial value can optionally be specified per param.
+
+    Args:
+        ranged_distkwargs (dict): Dictionary mapping parameter names to their range
+            specifications. Each range spec should have "lower" and "upper" bounds,
+            and optionally "step" and "value" keys.
+
+    Returns:
+        mo.ui.dictionary: A dictionary of marimo slider UI elements, one per parameter.
+            Each slider will be configured according to the parameter's range spec.
+
+    Example:
+        >>> ranges = {
+        ...     "mean": {"lower": 0, "upper": 100, "step": 1, "value": 50},
+        ...     "std": {"lower": 0, "upper": 10}
+        ... }
+        >>> sliders = params_sliders(ranges)
+
+    """
+    return mo.ui.dictionary(
         {
             p_name: mo.ui.slider(
                 start=ranges["lower"],
                 stop=ranges["upper"],
-                step=_DEFAULT_STEP if "step" not in ranges else ranges["step"],
+                step=ranges.get("step", _DEFAULT_STEP),
                 value=(
                     (ranges["lower"] + ranges["upper"]) / 2
                     if "value" not in ranges
@@ -144,22 +197,33 @@ def params_sliders(
                 ),
             )
             for p_name, ranges in ranged_distkwargs.items()
-        }
+        },
     )
 
-    return params
+
+_thousand = 1e3
+_million = 1e6
 
 
-def abbrev_format(value, tick_number):
-    if value >= 1e6:
-        return f"{value/1e6:.0f}M"
-    elif value >= 1e3:
-        return f"{value/1e3:.0f}k"
-    else:
-        return f"{value:.1f}"
+def abbrev_format(x: float, pos: int | None) -> str:  # noqa: ARG001
+    """Format numbers with k/M suffixes for thousands/millions.
+
+    Args:
+        x: The number to format
+        pos: The tick position (unused but required by matplotlib formatter interface)
+
+    Returns:
+        str: The formatted number string with k/M suffix if applicable
+
+    """
+    if x >= _million:
+        return f"{x/_million:.0f}M"
+    if x >= _thousand:
+        return f"{x/_thousand:.0f}k"
+    return f"{x:.1f}"
 
 
-def _dist_plot(params: dict, dist: Callable):
+def _dist_plot(params: dict, dist: Callable) -> mo.Html:
     _dist = dist(**params)
     x_min = _dist.ppf(0.0005)
     x_max = _dist.ppf(0.9995)
@@ -170,7 +234,7 @@ def _dist_plot(params: dict, dist: Callable):
     plt.plot(x, pdf_values, "b-", linewidth=2, label=None)
     plt.fill_between(x, pdf_values, alpha=0.3)
     plt.ylabel("Probability Density")
-    plt.grid(True, alpha=0.3)
+    plt.grid(visible=True, alpha=0.3)
     plt.tick_params(axis="y", labelleft=False)
     ax = plt.gca()
     ax.xaxis.set_major_formatter(FuncFormatter(abbrev_format))
@@ -182,8 +246,8 @@ def _display_sliders_with_plot(
     sliders: mo.ui.dictionary,
     dist: str | Callable,
     invars: dict[str, dict],
-    descriptions: dict = {},
-):
+    descriptions: dict = {},  # noqa: B006
+) -> mo.Html:
     _dist = dist if callable(dist) else SCIPY_DISTRIBUTIONS[str(dist)]
     parameter_descriptions = (
         descriptions
@@ -203,9 +267,9 @@ def _display_sliders_with_plot(
             [
                 f"<tr><td>{parameter_descriptions[k]}</td><td>{v}</td></tr>"
                 for k, v in sliders.items()
-            ]
+            ],
         )
-        + "</table>"
+        + "</table>",
     )
     invars[name] = {"dist": _dist, "params": sliders}
     return mo.hstack(
@@ -223,16 +287,35 @@ def display_sliders(
     sliders: mo.ui.dictionary | mo.ui.slider,
     invars: dict[str, dict],
     dist: str | Callable | None = None,
-    descriptions: dict = {},
-):
+    descriptions: dict = {},  # noqa: B006
+) -> mo.Html:
+    """Display parameter sliders with optional distribution plot.
+
+    Args:
+        name: Name of the parameter group to display
+        sliders: Either a single slider or dictionary of sliders for distribution params
+        invars: Dictionary to store input variable configurations
+        dist: Distribution to use (string name or callable), required for multi-sliders
+        descriptions: Optional dict mapping parameter names to descriptions
+
+    Returns:
+        Marimo component displaying the sliders and optional distribution plot
+
+    For a single slider, displays it as a constant parameter.
+    For multiple sliders, displays them with a plot of the resulting distribution.
+    Distribution must be specified for multiple sliders, either as a string name
+    matching a scipy distribution or as a callable distribution object.
+
+    Raises:
+        DistributionConfigurationError: If dist is None for multiple sliders
+
+    """
     if isinstance(sliders, mo.ui.dictionary):
         if dist is None:
-            raise ValueError(
-                "dist is required for multiple sliders, use _CONST for constants"
-            )
+            raise DistributionConfigurationError
         return _display_sliders_with_plot(name, sliders, dist, invars, descriptions)
-    else:  # Single slider is a constant
-        invars[name] = {"dist": _CONST, "params": sliders}
-        return mo.vstack(
-            [mo.md(f"### {name} = {abbrev_format(sliders.value, None)}"), sliders]
-        )
+    # Single slider is a constant
+    invars[name] = {"dist": _CONST, "params": sliders}
+    return mo.vstack(
+        [mo.md(f"### {name} = {abbrev_format(sliders.value, None)}"), sliders],
+    )

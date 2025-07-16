@@ -1,10 +1,10 @@
-from typing import Callable
+from collections.abc import Callable
 
 
 def npv_model_factory(
-    weeks_per_year: float | int,
-    hours_per_workweek: float | int,
-    avg_yearly_fully_loaded_cost_per_employee: float | int,
+    weeks_per_year: float,
+    hours_per_workweek: float,
+    avg_yearly_fully_loaded_cost_per_employee: float,
 ) -> Callable[
     [
         float,
@@ -31,7 +31,7 @@ def npv_model_factory(
     hours_per_year = weeks_per_year * hours_per_workweek
     hourly_rate = avg_yearly_fully_loaded_cost_per_employee / hours_per_year
 
-    def npv_model(
+    def npv_model(  # noqa: PLR0913
         hours_saved_per_employee: float,
         number_of_employees: float,
         productivity_conversion_rate: float,

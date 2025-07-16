@@ -1,4 +1,5 @@
 import pytest
+
 from npv_model import npv_model
 
 

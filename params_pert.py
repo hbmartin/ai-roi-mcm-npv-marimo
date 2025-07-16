@@ -1,6 +1,5 @@
 from marimo_utils.marimo_components import _DEFAULT_STEP
 
-
 pert_descriptions = {
     "mini": "Min",
     "mode": "Mode",
@@ -8,47 +7,47 @@ pert_descriptions = {
 }
 
 
-def same_pert_ranges(
-    min: float | int,
-    mini_value: float | int,
-    value: float | int,
-    maxi_value: float | int,
-    max: float | int,
-    step: float | int = _DEFAULT_STEP,
+def same_pert_ranges(  # noqa: PLR0913
+    mini: float,
+    mini_value: float,
+    value: float,
+    maxi_value: float,
+    maxi: float,
+    step: float = _DEFAULT_STEP,
 ) -> dict[str, dict[str, float | int]]:
     return {
         "mini": {
-            "lower": min,
-            "upper": max,
+            "lower": mini,
+            "upper": maxi,
             "value": mini_value,
             "step": step,
         },
         "mode": {
-            "lower": min,
-            "upper": max,
+            "lower": mini,
+            "upper": maxi,
             "value": value,
             "step": step,
         },
         "maxi": {
-            "lower": min,
-            "upper": max,
+            "lower": mini,
+            "upper": maxi,
             "value": maxi_value,
             "step": step,
         },
     }
 
 
-def pert_ranges(
-    mini_min: float | int,
-    mini_value: float | int,
-    mini_max: float | int,
-    mode_min: float | int,
-    mode_value: float | int,
-    mode_max: float | int,
-    maxi_min: float | int,
-    maxi_value: float | int,
-    maxi_max: float | int,
-    step: float | int = _DEFAULT_STEP,
+def pert_ranges(  # noqa: PLR0913
+    mini_min: float,
+    mini_value: float,
+    mini_max: float,
+    mode_min: float,
+    mode_value: float,
+    mode_max: float,
+    maxi_min: float,
+    maxi_value: float,
+    maxi_max: float,
+    step: float = _DEFAULT_STEP,
 ) -> dict[str, dict[str, float | int]]:
     return {
         "mini": {

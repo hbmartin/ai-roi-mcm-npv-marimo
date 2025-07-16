@@ -37,8 +37,13 @@ target-version = "py313"
 
 [tool.ruff.lint]
 select = ["ALL"]
+ignore = ["D100", "D203", "D213"]
 
 [tool.ruff.lint.per-file-ignores]
+"ai_roi_mcm_npv.py" = ["ANN001", "ANN201", "ANN202", "D103", "E501", "F841", "N803", "PLC0415", "PLR0913", "W291"]
+"**/exceptions.py" = ["ANN204", "D107", "E501"]
+"npv_model.py" = ["D103"]
+"params_pert.py" = ["D103"]
 "tests/*.py" = ["ANN001", "ANN201", "D100", "D102", "D400", "D415", "E501", "F401", "INP001", "PLC0415", "PLR2004", "PT009", "PT027", "S101", "SIM115", "TRY003"]
 
 
