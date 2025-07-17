@@ -8,9 +8,10 @@ dependencies = [
     "beta-pert-dist-scipy>=0.1.6",
     "marimo>=0.14.10",
     "marimo-scipy-utils>=0.1.2",
-    "matplotlib==3.8.4",
+    "matplotlib==3.10.3",
     "monaco>=0.15.1",
     "monaco-dict-utils>=0.1.0",
+    "mpmath>=1.3.0",
     "numpy==2.2.5",
     "scipy==1.14.1",
 ]
