@@ -11,7 +11,7 @@ def _():
     from scipy.optimize import fsolve
     from scipy.interpolate import interp1d
 
-    return fsolve, interp1d, plt, scipy
+    return interp1d, plt, scipy
 
 
 @app.cell
@@ -140,7 +140,7 @@ def _(scipy):
         """
         return mini, maxi
 
-    return calc_alpha_beta, np, ppf
+    return calc_alpha_beta, np, ppf, stats
 
 
 @app.cell
@@ -332,31 +332,43 @@ def _(np, scipy):
 
 
 @app.cell
-def _(calc_alpha_beta, fsolve, np, scipy):
+def _(calc_alpha_beta, np, scipy, stats):
     """Alternative PPF implementation #3: Work in log-space when possible"""
 
     def ppf_log_space(q, mini, mode, maxi, lambd=4):
         """Use log-space to avoid numerical issues with extreme probabilities"""
         alpha, beta = calc_alpha_beta(mini, mode, maxi, lambd)
-
-        # For very small or large probabilities, work in log space
-        # if np.any(q < 1e-10) or np.any(q > 1 - 1e-10):
-        # Use log probabilities
-        log_q = np.log(np.clip(q, 1e-15, 1 - 1e-15))
-
-        # Solve log(CDF(x)) = log_q numerically
-        def log_cdf_eq(x_normalized):
-            return scipy.stats.beta.logcdf(x_normalized, alpha, beta) - log_q
-
-        # Initial guess
-        x_normalized_guess = 0.5
-        x_normalized = fsolve(log_cdf_eq, x_normalized_guess)[0]
-
-        # Transform back to original scale
-        return mini + (maxi - mini) * x_normalized
-        # else:
-        #     # Use regular PPF for normal range
-        #     return ppf(q, mini, mode, maxi, lambd)
+    
+        # Handle scalar and array inputs consistently
+        q = np.atleast_1d(q)
+        results = np.zeros_like(q, dtype=float)
+    
+        for i, qi in enumerate(q):
+            # Clamp to avoid log(0) or log(1)
+            qi_safe = np.clip(qi, 1e-15, 1 - 1e-15)
+            log_qi = np.log(qi_safe)
+        
+            # Define the equation to solve: log(CDF(x)) - log(q) = 0
+            def log_cdf_eq(x_normalized):
+                # Ensure x_normalized stays in [0,1]
+                x_clamped = np.clip(x_normalized, 1e-15, 1 - 1e-15)
+                return scipy.stats.beta.logcdf(x_clamped, alpha, beta) - log_qi
+        
+            try:
+                # Use brentq with bounds instead of fsolve for more stability
+                x_normalized = scipy.optimize.brentq(log_cdf_eq, 1e-10, 1 - 1e-10)
+                results[i] = mini + (maxi - mini) * x_normalized
+            
+            except (ValueError, RuntimeError):
+                # Fallback to regular ppf if log-space fails
+                try:
+                    x_normalized = stats.beta.ppf(qi_safe, alpha, beta)
+                    results[i] = mini + (maxi - mini) * x_normalized
+                except:
+                    # Final fallback: linear interpolation
+                    results[i] = mini + qi * (maxi - mini)
+    
+        return results[0] if len(results) == 1 else results
 
     return (ppf_log_space,)
 
@@ -402,6 +414,12 @@ def _(calc_alpha_beta, interp1d, np, scipy):
 
 
 @app.cell
+def _():
+    import time
+    return (time,)
+
+
+@app.cell
 def _(
     np,
     ppf,
@@ -410,9 +428,8 @@ def _(
     ppf_interpolated,
     ppf_log_space,
     ppf_scaled,
+    time,
 ):
-    """Collect 100,000 samples for each PPF alternative"""
-
     # Parameters
     params = {"mini": 0.3, "mode": 0.5, "maxi": 0.7}
     n_samples = 100000
@@ -422,11 +439,17 @@ def _(
     probabilities = np.random.uniform(0, 1, n_samples)
 
     # Collect samples from each PPF implementation
+    start_time = time.time()
     samples_original = np.array([ppf(p, **params) for p in probabilities])
+    orig_time = time.time()
     samples_scaled = np.array([ppf_scaled(p, **params) for p in probabilities])
+    scaled_time = time.time()
     samples_high_precision = ppf_high_precision(probabilities, **params)
+    hp_time = time.time()
     samples_clamped = ppf_clamped(probabilities, **params)
+    clamped_time = time.time()
     samples_interpolated = ppf_interpolated(probabilities, **params)
+    interp_time = time.time()
 
     # For log_space, handle array input properly
     samples_log_space = np.array([ppf_log_space(p, **params) for p in probabilities])
@@ -441,7 +464,17 @@ def _(
         "Interpolated": samples_interpolated,
     }
 
-    return all_samples, n_samples, params
+    return (
+        all_samples,
+        clamped_time,
+        hp_time,
+        interp_time,
+        n_samples,
+        orig_time,
+        params,
+        scaled_time,
+        start_time,
+    )
 
 
 @app.cell
@@ -484,17 +517,32 @@ def _(all_samples, n_samples, np, params, plt):
     plt.tight_layout()
     plt.show()
 
+    return
+
+
+@app.cell
+def _(clamped_time, hp_time, interp_time, orig_time, scaled_time, start_time):
+    print(f"Orig time: {orig_time - start_time}")
+    print(f"Scaled time: {scaled_time - orig_time}")
+    print(f"HP time: {hp_time - scaled_time}")
+    print(f"Clamp time: {clamped_time - hp_time}")
+    print(f"Interp time: {interp_time - clamped_time}")
+
+    return
+
+
+@app.cell
+def _(all_samples, np):
     # Print summary statistics
     print("\nSummary Statistics:")
     print("-" * 60)
     print(f"{'Method':<15} {'Mean':<10} {'Std':<10} {'Min':<10} {'Max':<10}")
     print("-" * 60)
 
-    for method, samples in all_samples.items():
+    for _method, _samples in all_samples.items():
         print(
-            f"{method:<15} {np.mean(samples):<10.4f} {np.std(samples):<10.4f} {np.min(samples):<10.4f} {np.max(samples):<10.4f}"
+            f"{_method:<15} {np.mean(_samples):<10.4f} {np.std(_samples):<10.4f} {np.min(_samples):<10.4f} {np.max(_samples):<10.4f}"
         )
-
     return
 
 
